@@ -21,21 +21,23 @@ def read_file(name):
     tmax = float(f.readline().removeprefix('tmax '))  # read Tmax = available time budget per path
 
     nodes = []  # a list to append the nodes(points) in it
+    index = 0  # make index for nodes
+
     for line in f:
         x, y, s = line.split('\t')  # extract x coordinate , y coordinate and score from rest of the lines
-        nodes.append([float(x), float(y), int(s)])  # append nodes to nodes list
+        nodes.append([float(x), float(y), int(s), index])  # append nodes to nodes list
+        index += 1
     return n, p, tmax, nodes  # return extracted variables
 
 
 def initialization(nodes, no_paths):  # initialization func, construct m(no_paths) paths
-    m_constructed_paths=[]  # the result of this func, m paths
+    m_constructed_paths = []  # the result of this func, m paths
     for i in range(no_paths):
-        path=[]     # the path which will be made in this iteration and will be added to the final result list
+        path = []  # the path which will be made in this iteration and will be added to the final result list
         current_node = nodes[0]  # current node
-        for j in range(len(nodes)-1):
+        for j in range(len(nodes) - 1):
             path.append(current_node)
             if j == 0:
-
                 unvisited_feasible_nodes = len(nodes) - 2  # number of unvisited feasible nodes (μ)
                 integer_parameter = 10  # an integer parameter (γ)
                 minimum = min(unvisited_feasible_nodes, integer_parameter)  # minimum(l) is the min of μ and γ
@@ -46,7 +48,8 @@ def initialization(nodes, no_paths):  # initialization func, construct m(no_path
                 static_preference_values_start_node = static_preference_values(nodes, j)  # spvs of starting node
 
                 sorted_static_preference_values_start_node = sorted(
-                    static_preference_values_start_node.items(), key=lambda x: x[1], reverse=True)  # sort the dic of spvs,
+                    static_preference_values_start_node.items(), key=lambda x: x[1],
+                    reverse=True)  # sort the dic of spvs,
                 # in descending order
 
                 # the next node is randomly chosen from the best min nodes in terms of their static preference values
@@ -67,10 +70,10 @@ def favorite_nodes(nodes):
 
     for i in range(1, len(nodes) - 1):
         spvs = static_preference_values(nodes, i)  # static preference values of other nodes for node i
-        sorted_spvs=sorted(
+        sorted_spvs = sorted(
             spvs.items(), key=lambda x: x[1], reverse=True)  # sort in descending order according to spvs
-        L=50
-        first_L_nodes=sorted_spvs[0:L]
+        L = 50
+        first_L_nodes = sorted_spvs[0:L]
 
 
 # suppose current node is i ,static preference value of node j , is r_j / c_ij ,
@@ -92,6 +95,9 @@ def static_preference_values(nodes, index):
     return spvs
 
 
+# def find_unvisited_feasible(unvisited_feasible_so_far,current_node):
+
+
 if __name__ == '__main__':
     n, p, Tmax, Points = read_file('p1.2.b.txt')  # extract variables from the file ,
     # N is the number of vertices
@@ -100,16 +106,20 @@ if __name__ == '__main__':
     # points is a list of nodes(points) with their x & y coordinates and scores
 
     # print('n= ', N,'\np= ',P,'\nTmax= ',Tmax,'\nPoints= ',Points)
-    counter=1
-    while(counter<31):
-        print("norm "+str(counter)+"is: ")
-        print(norm(np.array([Points[0][0], Points[0][1]]) - np.array([Points[counter][0], Points[counter][1]])))
-        if norm(np.array([Points[0][0], Points[0][1]]) - np.array([Points[counter][0], Points[counter][1]]))<=5:
-            print("YEEEESSSSSSSS   "+str(counter)+"")
 
-        counter+=1
+    # counter = 1
+    # while (counter < 31):
+    #     print("norm " + str(counter) + "is: ")
+    #     print(norm(np.array([Points[0][0], Points[0][1]]) - np.array([Points[counter][0], Points[counter][1]])))
+    #     if norm(np.array([Points[0][0], Points[0][1]]) - np.array([Points[counter][0], Points[counter][1]])) <= 5:
+    #         print("YEEEESSSSSSSS   " + str(counter) + "")
+    #
+    #     counter += 1
+    #
+    # print(norm(np.array([Points[27][0], Points[27][1]]) - np.array([Points[31][0], Points[31][1]])))
 
-    print(norm(np.array([Points[27][0],Points[27][1]])-np.array([Points[31][0],Points[31][1]])))
+    print(Points)
+
     # dic=dict([(1,21),(2,30),(3,15),(4,9),(5,32)])
     #
     # sort_orders = sorted(dic.items(), key=lambda x: x[1], reverse=True)
