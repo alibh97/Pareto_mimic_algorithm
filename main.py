@@ -31,89 +31,197 @@ def read_file(name):
 
 
 def initialization(nodes):  # initialization func, construct at most m(no_paths) paths
-    constructed_paths = []  # the result of this function
+    # line 1 , Algorithm 2
+    # set currentNode := 0
+    current_node = nodes[0]
 
     fav_nodes = favorite_nodes(nodes)  # make a list of favorite nodes for each node
 
+    unvisited_nodes = nodes[1:(no_nodes - 1)]  # all unvisited nodes except 0 and n+1
 
-    # find unvisited feasible nodes based on the start node (node 0)
-    starting_unvisited_feasible_nodes = find_unvisited_feasible(nodes[1:(len(nodes) - 1)], [nodes[0]])
+    paths = [None] * no_paths
 
-
-
-    # at most m path ( m = number of path = number of vehicles)
+    # line 2 , Algorithm 2
     for i in range(no_paths):
-        current_node = nodes[0]  # a path always starts with node 0, so the current node is node 0
-        path = [
-            current_node]  # the path which will be made in this iteration and will be added to the final result list(
-        # m_constructed_paths)
+        remaining_time = Tmax  # time limit of path
 
-        integer_parameter = 10  # The integer parameter (γ)
+        # construct the ith path
+        # line 4 , Algorithm 2
+        paths[i] = []
 
-        # number of unvisited feasible nodes (μ)
-        no_unvisited_feasible_nodes = len(starting_unvisited_feasible_nodes)
+        # line 5 , Algorithm 2
+        while True:
+            # line 6 , Algorithm 2
+            flag = False
 
-        minimum = min(no_unvisited_feasible_nodes, integer_parameter)  # minimum(l) is the min of μ and γ
-        # if l (l=minimum) is nonzero,then the next node is randomly chosen from the
-        # best l (l=minimum) nodes in terms of their static preference values
-        while minimum != 0:
-            # for node 0 , we do differently and not doing in favorite nodes way
-            print(current_node)
-            if current_node[3] == 0:
-                # randomly choose from unvisited feasible nodes
-                index = int(random.random() * no_unvisited_feasible_nodes)
-                next_node = starting_unvisited_feasible_nodes[index]
-                current_node = next_node  # replace current node by next node
-                path.append(current_node)  # add it to the path
-
-                # pop the new node from starting unvisited feasible nodes, because in a solution ,
-                # any node can be visited at most one time
-                starting_unvisited_feasible_nodes.pop(index)
-
-                # why we need this variable? because in the following,
-                # we find unvisited feasible nodes based on middle nodes (node i to node n)
-                middle_unvisited_feasible_nodes = find_unvisited_feasible(starting_unvisited_feasible_nodes, path)
+            # line 14 , Algorithm 2
+            if not flag:
+                # line 15 , Algorithm 2
                 # number of unvisited feasible nodes (μ)
-                no_unvisited_feasible_nodes = len(middle_unvisited_feasible_nodes)
+                no_unvisited_feasible_nodes = find_no_unvisited_feasible(unvisited_nodes, remaining_time, current_node)
 
+                # line 16 , Algorithm 2
                 # minimum(l) is the min of μ and γ (Integer Parameter)
                 minimum = min(no_unvisited_feasible_nodes, integer_parameter)
-            # for other nodes we do based on favorite nodes
+
+                # line 17 , Algorithm 2
+                if minimum > 0:
+                    # line 18 , Algorithm 2
+                    # get favorite nodes of current node
+                    current_node_favorite_nodes = fav_nodes[current_node[3]]
+
+                    # the next node is randomly chosen from the best l nodes in terms of their static preference values
+                    best_l_nodes = current_node_favorite_nodes[0:minimum]
+
+                    # randomly choose from best l (l=minimum of  μ and γ) nodes
+                    index = int(random.random() * minimum)
+                    node = best_l_nodes[index]
+
+                    # line 19 , Algorithm 2
+                    next_node = nodes[node[0]]
+                    flag = True
+
+                    # calculate the cost ( time ) of going from current node, to next node
+                    cost_i_to_j = norm(
+                        np.array([current_node[0], current_node[1]]) - np.array([next_node[0], next_node[1]]))
+
+                    remaining_time -= cost_i_to_j  # update remaining time
+
+                    list(unvisited_nodes).remove(next_node)  # update unvisited nodes
+
+            # line 22 , Algorithm 2
+            if flag:
+                # line 23 , Algorithm 2
+                paths[i].append(next_node)
+
+                # line 24 , Algorithm 2
+                current_node = next_node
             else:
-                # get favorite nodes of current node
-                current_node_favorite_nodes = fav_nodes[current_node[3] - 1]
+                break
+    return paths
 
-                # the next node is randomly chosen from the best l nodes in terms of their static preference values
-                best_l_nodes = current_node_favorite_nodes[0:minimum]
 
-                # randomly choose from best l (l=minimum of  μ and γ) nodes
-                index = int(random.random() * minimum)
-                next_node = best_l_nodes[index]
-                current_node = nodes[next_node[0]]
-                path.append(current_node)
+def mimic_operator(nodes, solution):
+    # line 1 , Algorithm 2
+    # set currentNode := 0
+    current_node = nodes[0]
 
-                starting_unvisited_feasible_nodes.pop(index)
+    fav_nodes = favorite_nodes(nodes)  # make a list of favorite nodes for each node
 
-                middle_unvisited_feasible_nodes = find_unvisited_feasible(middle_unvisited_feasible_nodes, path)
+    unvisited_nodes = nodes[1:(no_nodes - 1)]  # all unvisited nodes except 0 and n+1
 
+    paths = [None] * no_paths
+
+    # line 2 , Algorithm 2
+    for i in range(no_paths):
+        remaining_time = Tmax  # time limit of path
+
+        # construct the ith path
+        # line 4 , Algorithm 2
+        paths[i] = []
+
+        # line 5 , Algorithm 2
+        while True:
+            # line 6 , Algorithm 2
+            flag = False
+
+            # line 7 , Algorithm 2
+            r = random.uniform(0, 1)  # a uniformly distributed random number r ∈ [0, 1]
+
+            # line 8 , Algorithm 2
+            if r < similarity_ratio:  # similarity ratio ( α )
+                # line 9 , Algorithm 2
+                # set node := the next node of currentNode in xI
+                node = find_next(solution, current_node)
+
+                # line 10 , Algorithm 2
+                if is_feasible(current_node, node, remaining_time):
+                    # calculate the cost ( time ) of going from current node, to next node
+                    cost_i_to_j = norm(
+                        np.array([current_node[0], current_node[1]]) - np.array([node[0], node[1]]))
+
+                    remaining_time -= cost_i_to_j  # update remaining time
+
+                    list(unvisited_nodes).remove(node)  # update unvisited nodes
+                    # line 11 , Algorithm 2
+                    next_node = node
+                    flag = True
+
+            # line 14 , Algorithm 2
+            if not flag:
+                # line 15 , Algorithm 2
                 # number of unvisited feasible nodes (μ)
-                no_unvisited_feasible_nodes = len(middle_unvisited_feasible_nodes)
+                no_unvisited_feasible_nodes = find_no_unvisited_feasible(unvisited_nodes, remaining_time, current_node)
 
+                # line 16 , Algorithm 2
                 # minimum(l) is the min of μ and γ (Integer Parameter)
                 minimum = min(no_unvisited_feasible_nodes, integer_parameter)
 
+                # line 17 , Algorithm 2
+                if minimum > 0:
+                    # line 18 , Algorithm 2
+                    # get favorite nodes of current node
+                    current_node_favorite_nodes = fav_nodes[current_node[3]]
 
-        # if l ( l= minimum) is zero, one path is finished at the ending route
-        path.append(nodes[len(nodes)-1])  # add ending node to path
+                    # the next node is randomly chosen from the best l nodes in terms of their static preference values
+                    best_l_nodes = current_node_favorite_nodes[0:minimum]
 
-        if len(path)>2:
-            constructed_paths.append(path)
+                    # randomly choose from best l (l=minimum of  μ and γ) nodes
+                    index = int(random.random() * minimum)
+                    node = best_l_nodes[index]
 
-        if len(starting_unvisited_feasible_nodes)==0:
-            break
+                    # line 19 , Algorithm 2
+                    next_node = nodes[node[0]]
+                    flag = True
 
-    return constructed_paths
+                    # calculate the cost ( time ) of going from current node, to next node
+                    cost_i_to_j = norm(
+                        np.array([current_node[0], current_node[1]]) - np.array([next_node[0], next_node[1]]))
 
+                    remaining_time -= cost_i_to_j  # update remaining time
+
+                    list(unvisited_nodes).remove(node)  # update unvisited nodes
+
+            # line 22 , Algorithm 2
+            if flag:
+                # line 23 , Algorithm 2
+                paths[i].append(next_node)
+
+                # line 24 , Algorithm 2
+                current_node = next_node
+            else:
+                break
+    return paths
+
+
+# this func tell us whether the node is feasible or not
+def is_feasible(current_node, node, remaining_time):
+    cost_i_to_j = norm(
+        np.array([current_node[0], current_node[1]]) - np.array([node[0], node[1]]))
+
+    if cost_i_to_j <= remaining_time:
+        return True
+    else:
+        return False
+
+
+# this func, finds next node in a solution
+def find_next(solution, node):
+    next_node = []  # result of this func
+    flag = False  # this flag will be true in case the next node be the first item of the next path
+    for path in solution:
+        if flag:
+            next_node = path[0]
+            flag = False
+        if list(path).__contains__(node):
+            index = list(path).index(node)
+            size_of_path = len(list(path))
+
+            if index + 1 < size_of_path:  # so the next node is in this path
+                next_node = path[index + 1]
+            else:  # the next node is in the next path so the flag will be true
+                flag = True
+    return next_node
 
 
 # for any node i (1<= i <=n ) ,the nodes except 0, i,and n + 1 ,
@@ -123,7 +231,7 @@ def initialization(nodes):  # initialization func, construct at most m(no_paths)
 def favorite_nodes(nodes):
     result = []  # the result is a list of 'First L Nodes' for each node i ( 1 <= i <= n)
 
-    for i in range(1, len(nodes) - 1):
+    for i in range(len(nodes) - 1):
         spvs = static_preference_values(nodes, i)  # static preference values of other nodes for node i
         sorted_spvs = sorted(
             spvs.items(), key=lambda x: x[1], reverse=True)  # sort in descending order according to spvs
@@ -152,36 +260,21 @@ def static_preference_values(nodes, index):
     return spvs
 
 
-# this function finds unvisited feasible nodes out of unvisited feasible nodes so far and return them
-def find_unvisited_feasible(unvisited_feasible_so_far, path):
-    current_node = path[len(path) - 1]
+# this function finds number of unvisited feasible nodes out of unvisited nodes so far and return it
+def find_no_unvisited_feasible(unvisited_so_far, remaining_time, current_node):
+    no_unvisited_feasible_nodes = 0  # this will be returned as result
 
-    # calculate the cost of path from start to current node
-    cost_start_to_i = 0
-    for i in range(len(path)):
-        if (i + 1) <= (len(path) - 1):
-            a = np.array([path[i][0], path[i][1]])
-            b = np.array([path[i + 1][0], path[i + 1][1]])
-            c_ab = norm(a - b)  # cost going from a to b
-            cost_start_to_i += c_ab
-
-    unvisited_feasible_nodes = []  # this list will be returned
-    for unvisited in unvisited_feasible_so_far:
+    for unvisited in unvisited_so_far:
         # calculate cost of going from current node to node j (1 <= j <= n)
         cost_i_to_j = norm(
             np.array([current_node[0], current_node[1]]) - np.array([unvisited[0], unvisited[1]]))
 
-        # calculate cost of going from node j to ending node(n+1) (1 <= j <= n)
-        cost_j_to_ending_node = norm(
-            np.array([unvisited[0], unvisited[1]]) - np.array([Points[no_nodes - 1][0], Points[no_nodes - 1][1]]))
-
-        cost_i_to_j_to_ending_node = cost_i_to_j + cost_j_to_ending_node
-
-        # if cost of going from current node(i) to j (1 <= j <= n) to ending node(n+1) be less than Tmax,
+        # if cost of going from current node(i) to j (1 <= j <= n) be less than remaining time,
         # then node j is a feasible node
-        if cost_i_to_j_to_ending_node + cost_start_to_i <= Tmax:
-            unvisited_feasible_nodes.append(unvisited)
-    return unvisited_feasible_nodes
+        if cost_i_to_j <= remaining_time:
+            no_unvisited_feasible_nodes += 1
+
+    return no_unvisited_feasible_nodes
 
 
 def ss(nodes, index):
@@ -196,36 +289,26 @@ def ss(nodes, index):
     print("spv: " + str(spv))
 
 
+# Fx is objective value of solution x, is the total received reward of these paths of x.
+def Fx(solution):
+    total_received_reward = 0
+    for path in solution:
+        for node in path:
+            total_received_reward += node[2]
+    return total_received_reward
+
+
 if __name__ == '__main__':
     no_nodes, no_paths, Tmax, Points = read_file('p1.2.c.txt')  # extract variables from the file ,
-    # first is the number of vertices
-    # seconds is the number of paths
+    # first is the number of vertices , n
+    # seconds is the number of paths , m
     # Tmax is the available time budget per path
     # points is a list of nodes(points) with their x & y coordinates and scores
 
-    print('n= ', no_nodes,'\np= ',no_paths,'\nTmax= ',Tmax,'\nPoints= ',Points)
-    print(initialization(Points))
-    # ss(Points,0)
-    # static_preference_values_start_node = static_preference_values(Points, 0)  # spvs of starting node
-    #
-    # sorted_static_preference_values_start_node = sorted(
-    #     static_preference_values_start_node.items(), key=lambda x: x[1],
-    #     reverse=True)
-    # print(sorted_static_preference_values_start_node)
-    # counter = 1
-    # while (counter < 31):
-    #     print("norm " + str(counter) + "is: ")
-    #     print(norm(np.array([Points[0][0], Points[0][1]]) - np.array([Points[counter][0], Points[counter][1]])))
-    #     if norm(np.array([Points[0][0], Points[0][1]]) - np.array([Points[counter][0], Points[counter][1]])) <= 5:
-    #         print("YEEEESSSSSSSS   " + str(counter) + "")
-    #
-    #     counter += 1
-    #
-    # print(norm(np.array([Points[27][0], Points[27][1]]) - np.array([Points[31][0], Points[31][1]])))
+    integer_parameter = 10  # The integer parameter (γ)
+    similarity_ratio = 0.95  # similarity ratio ( α )
 
-    # dic=dict([(1,21),(2,30),(3,15),(4,9),(5,32)])
-    #
-    # sort_orders = sorted(dic.items(), key=lambda x: x[1], reverse=True)
+    print('n= ', no_nodes, '\np= ', no_paths, '\nTmax= ', Tmax, '\nPoints= ', Points)
 
     # line 1 in algorithm 1
     IS = []  # incumbent solution needs to be empty at first, it's a set of solution(x)s
@@ -233,13 +316,31 @@ if __name__ == '__main__':
     # line 2 in algorithm 1
     Xb = []  # the best so far solution
 
-    # line 3 in algorithm 1
-    # for i in range(N) :   # N is the maximum number of incumbent solutions
-    #     # line 4 in algorithm 1
-    #     x = initialization()
-    #
-    #     # line 5 in algorithm 1
-    #     IS.append(x)
+    N = 10  # N is the maximum number of incumbent solutions
 
-    print(find_unvisited_feasible(Points[1:31],[Points[0]]))
+    # line 3 in algorithm 1
+    for i in range(N) :   # N is the maximum number of incumbent solutions
+        # line 4 in algorithm 1
+        x = initialization(Points)
+
+        # line 5 in algorithm 1
+        if not (IS.__contains__(x)):
+            IS.append(x)
+
+        # line 6 in algorithm 1
+        if Fx(x) > Fx(Xb):
+            Xb = x
+
+    # line 8 in algorithm 1
+    for j in range(3000):
+        # line 9 in algorithm 1
+        IS_size = len(IS)  # the size of IS (U)
+
+        # line 10 in algorithm 1
+        auxiliary_set = []  # an  auxiliary set (Q)
+
+        # line 11 in algorithm 1
+        # for i in range(IS_size):
+        #     # line 12 in algorithm 1
+        #     x=
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
