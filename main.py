@@ -87,7 +87,8 @@ def initialization(nodes):  # initialization func, construct at most m(no_paths)
 
                     remaining_time -= cost_i_to_j  # update remaining time
 
-                    list(unvisited_nodes).remove(next_node)  # update unvisited nodes
+                    unvisited_nodes.remove(next_node)  # update unvisited nodes
+                    delete_from_favorite(fav_nodes, next_node)  # update favorite nodes
 
             # line 22 , Algorithm 2
             if flag:
@@ -142,7 +143,8 @@ def mimic_operator(nodes, solution):
 
                     remaining_time -= cost_i_to_j  # update remaining time
 
-                    list(unvisited_nodes).remove(node)  # update unvisited nodes
+                    unvisited_nodes.remove(node)  # update unvisited nodes
+                    delete_from_favorite(fav_nodes,node)
                     # line 11 , Algorithm 2
                     next_node = node
                     flag = True
@@ -180,7 +182,8 @@ def mimic_operator(nodes, solution):
 
                     remaining_time -= cost_i_to_j  # update remaining time
 
-                    list(unvisited_nodes).remove(node)  # update unvisited nodes
+                    unvisited_nodes.remove(node)  # update unvisited nodes
+                    delete_from_favorite(fav_nodes, next_node)  # update favorite nodes
 
             # line 22 , Algorithm 2
             if flag:
@@ -192,6 +195,14 @@ def mimic_operator(nodes, solution):
             else:
                 break
     return paths
+
+
+# this func deletes the chosen next node from all node's favorite nodes, and update fav_nodes list
+def delete_from_favorite(favorite__nodes, next_node):
+    for nodes in favorite__nodes:
+        for node in nodes:
+            if node[0] == next_node[3]:
+                nodes.remove(node)
 
 
 # this func tell us whether the node is feasible or not
@@ -299,7 +310,7 @@ def Fx(solution):
 
 
 if __name__ == '__main__':
-    no_nodes, no_paths, Tmax, Points = read_file('p1.2.c.txt')  # extract variables from the file ,
+    no_nodes, no_paths, Tmax, Points = read_file('p1.2.r.txt')  # extract variables from the file ,
     # first is the number of vertices , n
     # seconds is the number of paths , m
     # Tmax is the available time budget per path
@@ -317,12 +328,11 @@ if __name__ == '__main__':
     Xb = []  # the best so far solution
 
     N = 10  # N is the maximum number of incumbent solutions
-
     # line 3 in algorithm 1
-    for counter in range(N) :   # N is the maximum number of incumbent solutions
+    for counter in range(N):  # N is the maximum number of incumbent solutions
         # line 4 in algorithm 1
         x = initialization(Points)
-        print(x)
+        print('round ', counter, 'x= ', x)
         # line 5 in algorithm 1
         if not (IS.__contains__(x)):
             IS.append(x)
