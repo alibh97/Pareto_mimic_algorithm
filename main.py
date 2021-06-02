@@ -131,7 +131,7 @@ def mimic_operator(nodes, solution):
             # line 8 , Algorithm 2
             if r < similarity_ratio:  # similarity ratio ( α )
                 # line 9 , Algorithm 2
-                # set node := the next node of currentNode in xI
+                # set node := the next node of currentNode in xI(solution passed to this function)
                 node = find_next(solution, current_node)
 
                 # line 10 , Algorithm 2
@@ -319,10 +319,10 @@ if __name__ == '__main__':
     N = 10  # N is the maximum number of incumbent solutions
 
     # line 3 in algorithm 1
-    for i in range(N) :   # N is the maximum number of incumbent solutions
+    for counter in range(N) :   # N is the maximum number of incumbent solutions
         # line 4 in algorithm 1
         x = initialization(Points)
-
+        print(x)
         # line 5 in algorithm 1
         if not (IS.__contains__(x)):
             IS.append(x)
