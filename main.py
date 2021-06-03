@@ -144,7 +144,7 @@ def mimic_operator(nodes, solution):
                     remaining_time -= cost_i_to_j  # update remaining time
 
                     unvisited_nodes.remove(node)  # update unvisited nodes
-                    delete_from_favorite(fav_nodes,node)
+                    delete_from_favorite(fav_nodes, node)
                     # line 11 , Algorithm 2
                     next_node = node
                     flag = True
@@ -221,10 +221,15 @@ def find_next(solution, node):
     next_node = []  # result of this func
     flag = False  # this flag will be true in case the next node be the first item of the next path
     for path in solution:
+        print(path)
+        # when node 0, the next node is the first node of first path
+        if node[3] == 0:
+            next_node = path[0]
+            break
         if flag:
             next_node = path[0]
             flag = False
-        if list(path).__contains__(node):
+        if path.__contains__(node):
             index = list(path).index(node)
             size_of_path = len(list(path))
 
@@ -329,7 +334,7 @@ if __name__ == '__main__':
 
     N = 10  # N is the maximum number of incumbent solutions
     # line 3 in algorithm 1
-    for counter in range(N):  # N is the maximum number of incumbent solutions
+    for counter in range(1):  # N is the maximum number of incumbent solutions
         # line 4 in algorithm 1
         x = initialization(Points)
         print('round ', counter, 'x= ', x)
