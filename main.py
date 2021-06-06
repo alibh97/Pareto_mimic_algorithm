@@ -69,15 +69,19 @@ def initialization(nodes):  # initialization func, construct at most m(no_paths)
                 # line 16 , Algorithm 2
                 # minimum(l) is the min of μ and γ (Integer Parameter)
                 minimum = min(no_unvisited_feasible_nodes, integer_parameter)
-
+                print('min: ',minimum)
                 # line 17 , Algorithm 2
                 if minimum > 0:
                     # line 18 , Algorithm 2
                     # get favorite nodes of current node
                     current_node_favorite_nodes = fav_nodes[current_node[3]]
-
+                    print('favorites: ',current_node_favorite_nodes)
+                    # find feasible favorite nodes of current node
+                    current_node_feasible_favorite_nodes = find_feasibles(current_node_favorite_nodes, remaining_time,
+                                                                          current_node)
+                    print('feasibles: ',current_node_feasible_favorite_nodes)
                     # the next node is randomly chosen from the best l nodes in terms of their static preference values
-                    best_l_nodes = current_node_favorite_nodes[0:minimum]
+                    best_l_nodes = current_node_feasible_favorite_nodes[0:minimum]
 
                     # randomly choose from best l (l=minimum of  μ and γ) nodes
                     index = int(random.random() * minimum)
@@ -134,19 +138,25 @@ def mimic_operator(nodes, solution):
 
             # line 7 , Algorithm 2
             r = random.uniform(0, 1)  # a uniformly distributed random number r ∈ [0, 1]
-            print('r= ',r)
+            print('r= ', r)
             # line 8 , Algorithm 2
             if r < similarity_ratio:  # similarity ratio ( α )
                 # line 9 , Algorithm 2
                 # set node := the next node of currentNode in xI(solution passed to this function)
-                node = find_next(solution, current_node)
-                print('next node of :',current_node,' is: ',node)
-                print('feasible? ',is_feasible(current_node, node, remaining_time))
+                node,is_for_next_path = find_next(solution, current_node)
+                print('next node of :', current_node, ' is: ', node)
+                print('feasible? ', is_feasible(current_node, node, remaining_time))
+
                 # line 10 , Algorithm 2
                 if is_feasible(current_node, node, remaining_time):
                     # calculate the cost ( time ) of going from current node, to next node
-                    cost_i_to_j = norm(
-                        np.array([current_node[0], current_node[1]]) - np.array([node[0], node[1]]))
+                    if paths[i].__len__() == 0:
+                        # if the node be the first node of path , the current node is cone 0
+                        cost_i_to_j = norm(
+                            np.array([nodes[0][0], nodes[0][1]]) - np.array([node[0], node[1]]))
+                    else:
+                        cost_i_to_j = norm(
+                            np.array([current_node[0], current_node[1]]) - np.array([node[0], node[1]]))
 
                     remaining_time -= cost_i_to_j  # update remaining time
 
@@ -167,7 +177,7 @@ def mimic_operator(nodes, solution):
                 else:
                     no_unvisited_feasible_nodes = find_no_unvisited_feasible(unvisited_nodes, remaining_time,
                                                                              current_node)
-                print('no un fe nodes: ',no_unvisited_feasible_nodes)
+                print('no un fe nodes: ', no_unvisited_feasible_nodes)
                 # line 16 , Algorithm 2
                 # minimum(l) is the min of μ and γ (Integer Parameter)
                 minimum = min(no_unvisited_feasible_nodes, integer_parameter)
@@ -178,8 +188,12 @@ def mimic_operator(nodes, solution):
                     # get favorite nodes of current node
                     current_node_favorite_nodes = fav_nodes[current_node[3]]
 
+                    # find feasible favorite nodes of current node
+                    current_node_feasible_favorite_nodes = find_feasibles(current_node_favorite_nodes, remaining_time,
+                                                                          current_node)
+
                     # the next node is randomly chosen from the best l nodes in terms of their static preference values
-                    best_l_nodes = current_node_favorite_nodes[0:minimum]
+                    best_l_nodes = current_node_feasible_favorite_nodes[0:minimum]
 
                     # randomly choose from best l (l=minimum of  μ and γ) nodes
                     index = int(random.random() * minimum)
@@ -187,7 +201,7 @@ def mimic_operator(nodes, solution):
 
                     # line 19 , Algorithm 2
                     next_node = nodes[node[0]]
-                    print('next is: ',next_node)
+                    print('next is: ', next_node)
                     flag = True
 
                     # calculate the cost ( time ) of going from current node, to next node
@@ -208,7 +222,7 @@ def mimic_operator(nodes, solution):
                 current_node = next_node
             else:
                 break
-        print('remaining time: ',remaining_time)
+        print('remaining time: ', remaining_time)
     return paths
 
 
@@ -220,9 +234,28 @@ def delete_from_favorite(favorite__nodes, next_node):
                 nodes.remove(node)
 
 
+# this func find feasible nodes out of favorite nodes of current node
+def find_feasibles(current_node_favorite_nodes, remaining_time, current_node):
+    current_node_feasible_favorite_nodes = []
+    for favorite_node in current_node_favorite_nodes:
+        cost_i_to_j = norm(
+            np.array([current_node[0], current_node[1]])
+            - np.array([Points[favorite_node[0]][0], Points[favorite_node[0]][1]]))
+
+        cost_j_to_end = norm(
+            np.array([Points[favorite_node[0]][0], Points[favorite_node[0]][1]]) - np.array(
+                [Points[no_nodes - 1][0], Points[no_nodes - 1][1]]))
+
+        # if condition be TRUE, so this favorite node is feasible
+        if (cost_i_to_j + cost_j_to_end) <= remaining_time:
+            current_node_feasible_favorite_nodes.append(favorite_node)
+
+    return current_node_feasible_favorite_nodes
+
+
 # this func tell us whether the node is feasible or not
 def is_feasible(current_node, node, remaining_time):
-    if len(node) ==0 :
+    if len(node) == 0:
         return False
     cost_i_to_j = norm(
         np.array([current_node[0], current_node[1]])
@@ -248,7 +281,7 @@ def find_next(solution, node):
             break
         if flag:
             next_node = path[0]
-            flag = False
+            break
         if path.__contains__(node):
             index = list(path).index(node)
             size_of_path = len(list(path))
@@ -257,7 +290,7 @@ def find_next(solution, node):
                 next_node = path[index + 1]
             else:  # the next node is in the next path so the flag will be true
                 flag = True
-    return next_node
+    return next_node,flag
 
 
 # for any node i (1<= i <=n ) ,the nodes except 0, i,and n + 1 ,
@@ -363,7 +396,7 @@ if __name__ == '__main__':
         # line 4 in algorithm 1
         x = initialization(Points)
         print('round ', counter, 'x= ', x)
-        print(mimic_operator(Points,x))
+        print(mimic_operator(Points, x))
         # line 5 in algorithm 1
         if not (IS.__contains__(x)):
             IS.append(x)
