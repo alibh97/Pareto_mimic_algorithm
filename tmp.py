@@ -168,14 +168,14 @@ def find_unvisited_feasible(unvisited_feasible_so_far, path):
     unvisited_feasible_nodes = []  # this list will be returned
     for unvisited in unvisited_feasible_so_far:
         # calculate cost of going from current node to node j (1 <= j <= n)
-        cost_i_to_j = norm(
-            np.array([current_node[0], current_node[1]]) - np.array([unvisited[0], unvisited[1]]))
-
-        # calculate cost of going from node j to ending node(n+1) (1 <= j <= n)
-        cost_j_to_ending_node = norm(
-            np.array([unvisited[0], unvisited[1]]) - np.array([Points[no_nodes - 1][0], Points[no_nodes - 1][1]]))
-
-        cost_i_to_j_to_ending_node = cost_i_to_j + cost_j_to_ending_node
+        # cost_i_to_j = norm(
+        #     np.array([current_node[0], current_node[1]]) - np.array([unvisited[0], unvisited[1]]))
+        #
+        # # calculate cost of going from node j to ending node(n+1) (1 <= j <= n)
+        # cost_j_to_ending_node = norm(
+        #     np.array([unvisited[0], unvisited[1]]) - np.array([Points[no_nodes - 1][0], Points[no_nodes - 1][1]]))
+        #
+        # cost_i_to_j_to_ending_node = cost_i_to_j + cost_j_to_ending_node
 
         # if cost of going from current node(i) to j (1 <= j <= n) to ending node(n+1) be less than Tmax,
         # then node j is a feasible node

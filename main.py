@@ -58,7 +58,13 @@ def initialization(nodes):  # initialization func, construct at most m(no_paths)
             if not flag:
                 # line 15 , Algorithm 2
                 # number of unvisited feasible nodes (μ)
-                no_unvisited_feasible_nodes = find_no_unvisited_feasible(unvisited_nodes, remaining_time, current_node)
+                if paths[i].__len__() == 0:
+                    # always for finding the number of unvisited feasible nodes, if
+                    # the path was empty we assume the current node is 0
+                    no_unvisited_feasible_nodes = find_no_unvisited_feasible(unvisited_nodes, remaining_time, nodes[0])
+                else:
+                    no_unvisited_feasible_nodes = find_no_unvisited_feasible(unvisited_nodes, remaining_time,
+                                                                             current_node)
 
                 # line 16 , Algorithm 2
                 # minimum(l) is the min of μ and γ (Integer Parameter)
@@ -128,13 +134,14 @@ def mimic_operator(nodes, solution):
 
             # line 7 , Algorithm 2
             r = random.uniform(0, 1)  # a uniformly distributed random number r ∈ [0, 1]
-
+            print('r= ',r)
             # line 8 , Algorithm 2
             if r < similarity_ratio:  # similarity ratio ( α )
                 # line 9 , Algorithm 2
                 # set node := the next node of currentNode in xI(solution passed to this function)
                 node = find_next(solution, current_node)
-
+                print('next node of :',current_node,' is: ',node)
+                print('feasible? ',is_feasible(current_node, node, remaining_time))
                 # line 10 , Algorithm 2
                 if is_feasible(current_node, node, remaining_time):
                     # calculate the cost ( time ) of going from current node, to next node
@@ -153,8 +160,14 @@ def mimic_operator(nodes, solution):
             if not flag:
                 # line 15 , Algorithm 2
                 # number of unvisited feasible nodes (μ)
-                no_unvisited_feasible_nodes = find_no_unvisited_feasible(unvisited_nodes, remaining_time, current_node)
-
+                if paths[i].__len__() == 0:
+                    # always for finding the number of unvisited feasible nodes, if
+                    # the path was empty we assume the current node is 0
+                    no_unvisited_feasible_nodes = find_no_unvisited_feasible(unvisited_nodes, remaining_time, nodes[0])
+                else:
+                    no_unvisited_feasible_nodes = find_no_unvisited_feasible(unvisited_nodes, remaining_time,
+                                                                             current_node)
+                print('no un fe nodes: ',no_unvisited_feasible_nodes)
                 # line 16 , Algorithm 2
                 # minimum(l) is the min of μ and γ (Integer Parameter)
                 minimum = min(no_unvisited_feasible_nodes, integer_parameter)
@@ -174,6 +187,7 @@ def mimic_operator(nodes, solution):
 
                     # line 19 , Algorithm 2
                     next_node = nodes[node[0]]
+                    print('next is: ',next_node)
                     flag = True
 
                     # calculate the cost ( time ) of going from current node, to next node
@@ -182,7 +196,7 @@ def mimic_operator(nodes, solution):
 
                     remaining_time -= cost_i_to_j  # update remaining time
 
-                    unvisited_nodes.remove(node)  # update unvisited nodes
+                    unvisited_nodes.remove(next_node)  # update unvisited nodes
                     delete_from_favorite(fav_nodes, next_node)  # update favorite nodes
 
             # line 22 , Algorithm 2
@@ -194,6 +208,7 @@ def mimic_operator(nodes, solution):
                 current_node = next_node
             else:
                 break
+        print('remaining time: ',remaining_time)
     return paths
 
 
@@ -207,10 +222,16 @@ def delete_from_favorite(favorite__nodes, next_node):
 
 # this func tell us whether the node is feasible or not
 def is_feasible(current_node, node, remaining_time):
+    if len(node) ==0 :
+        return False
     cost_i_to_j = norm(
-        np.array([current_node[0], current_node[1]]) - np.array([node[0], node[1]]))
+        np.array([current_node[0], current_node[1]])
+        - np.array([node[0], node[1]]))
 
-    if cost_i_to_j <= remaining_time:
+    cost_j_to_end = norm(
+        np.array([node[0], node[1]]) - np.array([Points[no_nodes - 1][0], Points[no_nodes - 1][1]]))
+
+    if (cost_i_to_j + cost_j_to_end) <= remaining_time:
         return True
     else:
         return False
@@ -221,7 +242,6 @@ def find_next(solution, node):
     next_node = []  # result of this func
     flag = False  # this flag will be true in case the next node be the first item of the next path
     for path in solution:
-        print(path)
         # when node 0, the next node is the first node of first path
         if node[3] == 0:
             next_node = path[0]
@@ -281,13 +301,18 @@ def find_no_unvisited_feasible(unvisited_so_far, remaining_time, current_node):
     no_unvisited_feasible_nodes = 0  # this will be returned as result
 
     for unvisited in unvisited_so_far:
-        # calculate cost of going from current node to node j (1 <= j <= n)
+        # calculate cost of going from current node i to next node j (1 <= j <= n)
         cost_i_to_j = norm(
             np.array([current_node[0], current_node[1]]) - np.array([unvisited[0], unvisited[1]]))
 
-        # if cost of going from current node(i) to j (1 <= j <= n) be less than remaining time,
+        # calculate cost of going from next node j to ending node n+1 (1 <= j <= n)
+        cost_j_to_end = norm(
+            np.array([unvisited[0], unvisited[1]]) - np.array([Points[no_nodes - 1][0], Points[no_nodes - 1][1]]))
+
+        # if cost of going from current node(i) to next node j (1 <= j <= n) plus
+        # cost of going from next node j to ending node n+1, be less than remaining time,
         # then node j is a feasible node
-        if cost_i_to_j <= remaining_time:
+        if (cost_i_to_j + cost_j_to_end) <= remaining_time:
             no_unvisited_feasible_nodes += 1
 
     return no_unvisited_feasible_nodes
@@ -338,6 +363,7 @@ if __name__ == '__main__':
         # line 4 in algorithm 1
         x = initialization(Points)
         print('round ', counter, 'x= ', x)
+        print(mimic_operator(Points,x))
         # line 5 in algorithm 1
         if not (IS.__contains__(x)):
             IS.append(x)
