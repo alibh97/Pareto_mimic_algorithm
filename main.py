@@ -69,17 +69,14 @@ def initialization(nodes):  # initialization func, construct at most m(no_paths)
                 # line 16 , Algorithm 2
                 # minimum(l) is the min of μ and γ (Integer Parameter)
                 minimum = min(no_unvisited_feasible_nodes, integer_parameter)
-                print('min: ',minimum)
                 # line 17 , Algorithm 2
                 if minimum > 0:
                     # line 18 , Algorithm 2
                     # get favorite nodes of current node
                     current_node_favorite_nodes = fav_nodes[current_node[3]]
-                    print('favorites: ',current_node_favorite_nodes)
                     # find feasible favorite nodes of current node
                     current_node_feasible_favorite_nodes = find_feasibles(current_node_favorite_nodes, remaining_time,
                                                                           current_node)
-                    print('feasibles: ',current_node_feasible_favorite_nodes)
                     # the next node is randomly chosen from the best l nodes in terms of their static preference values
                     best_l_nodes = current_node_feasible_favorite_nodes[0:minimum]
 
@@ -143,7 +140,7 @@ def mimic_operator(nodes, solution):
             if r < similarity_ratio:  # similarity ratio ( α )
                 # line 9 , Algorithm 2
                 # set node := the next node of currentNode in xI(solution passed to this function)
-                node,is_for_next_path = find_next(solution, current_node)
+                node, is_for_next_path = find_next(solution, current_node)
                 print('next node of :', current_node, ' is: ', node)
                 print('feasible? ', is_feasible(current_node, node, remaining_time))
 
@@ -159,7 +156,7 @@ def mimic_operator(nodes, solution):
                             np.array([current_node[0], current_node[1]]) - np.array([node[0], node[1]]))
 
                     remaining_time -= cost_i_to_j  # update remaining time
-
+                    print('node is: ', node)
                     unvisited_nodes.remove(node)  # update unvisited nodes
                     delete_from_favorite(fav_nodes, node)
                     # line 11 , Algorithm 2
@@ -181,7 +178,7 @@ def mimic_operator(nodes, solution):
                 # line 16 , Algorithm 2
                 # minimum(l) is the min of μ and γ (Integer Parameter)
                 minimum = min(no_unvisited_feasible_nodes, integer_parameter)
-
+                print('min is: ', minimum)
                 # line 17 , Algorithm 2
                 if minimum > 0:
                     # line 18 , Algorithm 2
@@ -224,6 +221,72 @@ def mimic_operator(nodes, solution):
                 break
         print('remaining time: ', remaining_time)
     return paths
+
+
+# def local_search(nodes,solution):
+
+# 2_opt operator in local search
+def two_opt(solution, nodes):
+    for path in solution:
+
+        smallest_travel_time = calculate_total_travel_time(path, nodes)
+        no_nodes_to_swap = len(path)
+        current_path = path
+        while True:
+            flag = False
+            c = 0
+            for i in range(no_nodes_to_swap - 1):
+                if flag:
+                    break
+                for k in range(i + 1, no_nodes_to_swap):
+                    new_path = two_opt_swap(path, i, k)
+                    new_travel_time = calculate_total_travel_time(new_path, nodes)
+                    if new_travel_time < smallest_travel_time:
+                        smallest_travel_time = new_travel_time
+                        solution[solution.index(current_path)] = new_path
+                        current_path = new_path
+
+                        flag = True
+                        break
+                c=i
+            if c == (no_nodes_to_swap - 2):
+                break
+
+    return solution
+
+
+def two_opt_swap(path, i, k):
+    new_path = []
+    for c in range(i):
+        new_path.append(path[c])
+
+    for c in range(k, i - 1, -1):
+        new_path.append(path[c])
+
+    for c in range(k + 1, len(path)):
+        new_path.append(path[c])
+    return new_path
+
+
+def calculate_total_travel_time(path, nodes):
+    current_node = nodes[0]
+    travel_time = 0
+    for node in path:
+        cost_i_to_j = norm(
+            np.array([current_node[0], current_node[1]])
+            - np.array([node[0], node[1]]))
+        travel_time += cost_i_to_j
+        current_node = node
+
+    end_node = nodes[no_nodes - 1]
+
+    cost_i_to_j = norm(
+        np.array([current_node[0], current_node[1]])
+        - np.array([end_node[0], end_node[1]]))
+
+    travel_time += cost_i_to_j
+
+    return travel_time
 
 
 # this func deletes the chosen next node from all node's favorite nodes, and update fav_nodes list
@@ -290,7 +353,7 @@ def find_next(solution, node):
                 next_node = path[index + 1]
             else:  # the next node is in the next path so the flag will be true
                 flag = True
-    return next_node,flag
+    return next_node, flag
 
 
 # for any node i (1<= i <=n ) ,the nodes except 0, i,and n + 1 ,
@@ -396,7 +459,9 @@ if __name__ == '__main__':
         # line 4 in algorithm 1
         x = initialization(Points)
         print('round ', counter, 'x= ', x)
-        print(mimic_operator(Points, x))
+        x = mimic_operator(Points, x)
+        print('mimic: ', x)
+        print(two_opt(x, Points))
         # line 5 in algorithm 1
         if not (IS.__contains__(x)):
             IS.append(x)
