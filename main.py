@@ -220,7 +220,7 @@ def mimic_operator(nodes, solution):
 # def local_search(nodes,solution):
 
 # 2_opt operator in local search
-def two_opt(solution, nodes):
+def two_opt_operator(solution, nodes):
     for path in solution:
 
         smallest_travel_time = calculate_total_travel_time(path, nodes)
@@ -459,7 +459,7 @@ if __name__ == '__main__':
         print('round ', counter, 'x= ', x)
         x = mimic_operator(Points, x)
         print('mimic: ', x)
-        print(two_opt(x, Points))
+        print(two_opt_operator(x, Points))
         # line 5 in algorithm 1
         if not (IS.__contains__(x)):
             IS.append(x)
