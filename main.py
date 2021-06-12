@@ -219,6 +219,51 @@ def mimic_operator(nodes, solution):
 
 # def local_search(nodes,solution):
 
+def exchange_operator(solution,nodes):
+    flag2=False
+    while True:
+        flag=False
+        for path in solution:
+            if flag:
+                break
+            smallest_travel_time_path1=calculate_total_travel_time(path,nodes)
+            current_path1=list(path)
+            for node in path:
+                if flag:
+                    break
+                index_node_in_path1 = path.index(node)
+                for path2 in solution:
+                    if flag:
+                        break
+                    if path!=path2:
+                        current_path2=list(path2)
+                        smallest_travel_time_path2 = calculate_total_travel_time(path2, nodes)
+                        for node2 in path2:
+                            index_node2_in_path2=path2.index(node2)
+
+                            current_path1[index_node_in_path1]=node2
+                            current_path2[index_node2_in_path2]=node
+                            new_travel_time1=calculate_total_travel_time(current_path1,nodes)
+                            new_travel_time2=calculate_total_travel_time(current_path2,nodes)
+                            if new_travel_time1 < smallest_travel_time_path1 and \
+                                    new_travel_time2 < smallest_travel_time_path2:
+                                solution[solution.index(path)]=current_path1
+                                solution[solution.index(path2)]=current_path2
+                                flag=True
+                                break
+                            else:
+                                if path2.index(node2)== (len(path2)-1) and \
+                                        solution.index(path2)== (len(solution)-2) and \
+                                        path.index(node)== (len(path)-1) and \
+                                        solution.index(path) == (len(solution)-1):
+                                    flag2=True
+
+                                current_path1=list(path)
+                                current_path2=list(path2)
+        if flag2:
+            break
+    return solution
+
 # 2_opt operator in local search
 def two_opt_operator(solution, nodes):
     for path in solution:
@@ -459,7 +504,9 @@ if __name__ == '__main__':
         print('round ', counter, 'x= ', x)
         x = mimic_operator(Points, x)
         print('mimic: ', x)
-        print(two_opt_operator(x, Points))
+        x = two_opt_operator(x, Points)
+        print(x)
+        print(exchange_operator(x,Points))
         # line 5 in algorithm 1
         if not (IS.__contains__(x)):
             IS.append(x)
