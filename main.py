@@ -219,10 +219,146 @@ def mimic_operator(nodes, solution):
 
 # def local_search(nodes,solution):
 
-def relocate_operator(solution,nodes):
-    finding_better_solution=True
+def insertion_operator(solution, nodes):
+    # find unvisited nodes
+    unvisited_nodes = list(nodes[1:len(nodes) - 1])
+    for path in solution:
+        unvisited_nodes = [i for i in unvisited_nodes if i not in path]
+
+
+    while True:
+        feasible_nodes = find_feasibles_for_insert(solution, unvisited_nodes, nodes)
+        if len(feasible_nodes) == 0:
+            # there is no feasible node to be inserted
+            break
+
+        sorted_largest_dpv_feasible_nodes = dynamic_preference_values(solution, feasible_nodes, nodes)
+
+        # At each step, the feasible node with the largest dynamic
+        # preference value is chosen and inserted into the best position of the incumbent solution
+        feasible_node_with_largest_dpv = nodes[sorted_largest_dpv_feasible_nodes[0][0]]
+
+        # index of best position for insert
+        index = sorted_largest_dpv_feasible_nodes[0][1]
+
+        # inserted into the best position of the incumbent solution
+        solution[int(index[0])].insert(int(index[1]), feasible_node_with_largest_dpv)
+
+        # update list of unvisited nodes
+        unvisited_nodes.remove(feasible_node_with_largest_dpv)
+
+
+def dynamic_preference_values(solution, feasible_nodes, nodes):
+    # list of dynamic preference values with node id's and best position index
+    dpvs = []
+
+    for node in feasible_nodes:
+        # ΔT (x, i, k) be the increment of travel time caused by
+        # inserting i into the kth best position
+
+        # calculate and sort delta Ts ( ΔT (x, i, k) ) based on increment of travel time in ascending order
+        sorted_delta_t_for_node = calculate_delta(solution, node, nodes)
+
+        # ΔT (x, i, 1)
+        delta_t_best_position = sorted_delta_t_for_node[0][1]
+
+        # ΔT (x, i, 3)
+        delta_t_3th_best_position = sorted_delta_t_for_node[2][1]
+        while True:
+            # u ∈ (0, 1] is a uniformly distributed random number
+            u = random.uniform(0, 1)
+            if u != 0:
+                break
+
+        # r is reward of node i
+        r = node[2]
+
+        # The dynamic preference value of node i, denoted as D(x, i), is defined as
+        # follows:
+        # D(x, i) = (ΔT (x, i, 3) − ΔT (x, i, 1)) · r_i ^ u
+
+        # ΔT (x, i, 3) − ΔT (x, i, 1) is the difference of travel time
+        # obtained by inserting i into the third best and the best position.
+
+        # dynamic preference value of node i
+        dpv = (delta_t_3th_best_position - delta_t_best_position) * pow(r, u)
+
+        # make a list with node id and the index of best position to insert in solution and dynamic preference value
+        # of the node
+        id_index_dpv = [node[3], sorted_delta_t_for_node[0][0], dpv]
+
+        # add above list to dynamic preference values list
+        dpvs.append(id_index_dpv)
+
+    # dpvs list is sorted based on dpv of the nodes in descending order
+    dpvs.sort(reverse=True, key=lambda e: e[2])
+    return dpvs
+
+
+# ΔT (x, i, k) be the increment of travel time caused by
+# inserting i into the kth best position
+def calculate_delta(solution, feasible_node, nodes):
+    delta_T = {}
+
+    solution_travel_time = 0
+    for path in solution:
+        solution_travel_time += calculate_total_travel_time(path, nodes)
+
+    for path in solution:
+        for i in range(len(path) + 1):
+            tmp_path = list(path)
+
+            tmp_path.insert(i, feasible_node)
+
+            new_path_travel_time = calculate_total_travel_time(tmp_path, nodes)
+
+            new_solution_travel_time = new_path_travel_time
+
+            for path2 in solution:
+                if path2 != path:
+                    new_solution_travel_time += calculate_total_travel_time(path2, nodes)
+
+            increment_of_travel_time = new_solution_travel_time - solution_travel_time
+
+            # make the index
+            index = str(solution.index(path)) + str(i)
+
+            # append to dictionary
+            delta_T[index] = increment_of_travel_time
+
+    # SORT in ascending order according to increment of travel time
+    sorted_delta_T = sorted(
+        delta_T.items(), key=lambda x: x[1], reverse=False)
+
+    return sorted_delta_T
+
+
+def find_feasibles_for_insert(solution, unvisited_nodes, nodes):
+    feasible_nodes = []
+    for node in unvisited_nodes:
+        flag = False
+        for path in solution:
+            if flag:
+                break
+            tmp_path = list(path)
+            for i in range(len(path) + 1):
+                tmp_path.insert(i, node)
+                new_path_time = calculate_total_travel_time(tmp_path, nodes)
+                if new_path_time <= Tmax:
+                    feasible_nodes.append(node)
+                    flag = True
+                    break
+                else:
+                    tmp_path = list(path)
+
+    return feasible_nodes
+
+
+# relocate operator
+def relocate_operator(solution, nodes):
+    finding_better_solution = True
     while finding_better_solution:
-        flag=False
+        flag = False
         for path1 in solution:
             if flag:
                 break
@@ -230,34 +366,34 @@ def relocate_operator(solution,nodes):
             for node1 in path1:
                 if flag:
                     break
-                relocate_node=node1
-                current_path1=list(path1)
+                relocate_node = node1
+                current_path1 = list(path1)
                 current_path1.remove(relocate_node)
-                new_travel_time_path1=calculate_total_travel_time(current_path1,nodes)
-                reduction_time_path1=travel_time_path1-new_travel_time_path1
+                new_travel_time_path1 = calculate_total_travel_time(current_path1, nodes)
+                reduction_time_path1 = travel_time_path1 - new_travel_time_path1
                 for path2 in solution:
                     if flag:
                         break
-                    if path1!=path2:
+                    if path1 != path2:
                         travel_time_path2 = calculate_total_travel_time(path2, nodes)
-                        for i in range(len(path2)+1):
+                        for i in range(len(path2) + 1):
                             current_path2 = list(path2)
-                            current_path2.insert(i,relocate_node)
-                            new_travel_time_path2=calculate_total_travel_time(current_path2,nodes)
-                            increased_time_path2=new_travel_time_path2-travel_time_path2
+                            current_path2.insert(i, relocate_node)
+                            new_travel_time_path2 = calculate_total_travel_time(current_path2, nodes)
+                            increased_time_path2 = new_travel_time_path2 - travel_time_path2
                             if increased_time_path2 < reduction_time_path1 and \
                                     new_travel_time_path2 <= Tmax and \
                                     new_travel_time_path1 <= Tmax:
-                                solution[solution.index(path1)]= current_path1
-                                solution[solution.index(path2)]= current_path2
-                                flag=True
+                                solution[solution.index(path1)] = current_path1
+                                solution[solution.index(path2)] = current_path2
+                                flag = True
                                 break
                             else:
                                 if i == len(path2) and \
-                                        solution.index(path2) == (len(solution)-2) and \
-                                        path1.index(node1) == (len(path1)-1) and \
-                                        solution.index(path1) == (len(solution)-1):
-                                    finding_better_solution=False
+                                        solution.index(path2) == (len(solution) - 2) and \
+                                        path1.index(node1) == (len(path1) - 1) and \
+                                        solution.index(path1) == (len(solution) - 1):
+                                    finding_better_solution = False
     return solution
 
 
@@ -581,8 +717,6 @@ if __name__ == '__main__':
 
     print('n= ', no_nodes, '\np= ', no_paths, '\nTmax= ', Tmax, '\nPoints= ', Points)
 
-
-
     # line 1 in algorithm 1
     IS = []  # incumbent solution needs to be empty at first, it's a set of solution(x)s
 
@@ -598,13 +732,15 @@ if __name__ == '__main__':
         x = mimic_operator(Points, x)
         print('mimic: ', x)
         two_opt_operator(x, Points)
-        print('two_opt: ',x)
+        print('two_opt: ', x)
         exchange_operator(x, Points)
-        print('exchange: ',x)
-        cross_operator(x,Points)
-        print('cross: ',x)
-        relocate_operator(x,Points)
-        print('relocat: ',x)
+        print('exchange: ', x)
+        cross_operator(x, Points)
+        print('cross: ', x)
+        relocate_operator(x, Points)
+        print('relocat: ', x)
+        insertion_operator(x, Points)
+        print('insertion: ', x)
         # line 5 in algorithm 1
         if not (IS.__contains__(x)):
             IS.append(x)
@@ -625,10 +761,12 @@ if __name__ == '__main__':
         # for i in range(IS_size):
         #     # line 12 in algorithm 1
         #     x=
+
+
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
 
-def localSearch(solution,nodes):
-    two_opt_operator(solution,nodes)
-    exchange_operator(solution,nodes)
-    cross_operator(solution,nodes)
-    relocate_operator(solution,nodes)
+def localSearch(solution, nodes):
+    two_opt_operator(solution, nodes)
+    exchange_operator(solution, nodes)
+    cross_operator(solution, nodes)
+    relocate_operator(solution, nodes)
