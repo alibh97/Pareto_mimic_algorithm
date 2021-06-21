@@ -219,6 +219,40 @@ def mimic_operator(nodes, solution):
 
 # def local_search(nodes,solution):
 
+# exchange unvisited operator
+def exchange_unvisited_operator(solution, nodes):
+    # find unvisited nodes
+    unvisited_nodes = list(nodes[1:len(nodes) - 1])
+    for path in solution:
+        unvisited_nodes = [i for i in unvisited_nodes if i not in path]
+
+    find_better_solution = True
+    while find_better_solution:
+        flag = False
+
+        for path in solution:
+            if flag:
+                break
+            for node in path:
+                if flag:
+                    break
+                for unvisited in unvisited_nodes:
+                    tmp_path = list(path)
+                    tmp_path[path.index(node)] = unvisited
+
+                    if calculate_total_travel_time(tmp_path,nodes) <= Tmax:  # it is feasible
+                        if unvisited[2] > node[2]:  # so it can increase total
+                            # received reward
+                            solution[solution.index(path)] = tmp_path
+                            unvisited_nodes.remove(unvisited)
+                            flag = True
+                            break
+                    else:
+                        if unvisited_nodes.index(unvisited) == (len(unvisited_nodes) - 1) and \
+                                path.index(node) == (len(path) - 1) and solution.index(path) == (len(solution) - 1):
+                            find_better_solution = False
+
+
 def insertion_operator(solution, nodes):
     # find unvisited nodes
     unvisited_nodes = list(nodes[1:len(nodes) - 1])
@@ -289,8 +323,8 @@ def dynamic_preference_values(solution, feasible_nodes, nodes):
 
         # make a list with node id and the index of best position to insert in solution and dynamic preference value
         # of the node
-        path_index=sorted_delta_t_for_node[0][0]
-        node_index=sorted_delta_t_for_node[0][1]
+        path_index = sorted_delta_t_for_node[0][0]
+        node_index = sorted_delta_t_for_node[0][1]
 
         id_index_dpv = [node[3], [path_index, node_index], dpv]
 
@@ -328,8 +362,8 @@ def calculate_delta(solution, feasible_node, nodes):
                 increment_of_travel_time = new_solution_travel_time - solution_travel_time
 
                 # make the index
-                path_index=solution.index(path)
-                node_index=i
+                path_index = solution.index(path)
+                node_index = i
                 delta_t.append([path_index, node_index, increment_of_travel_time])
     # SORT in ascending order according to increment of travel time
     delta_t.sort(key=lambda e: e[2])
@@ -745,6 +779,8 @@ if __name__ == '__main__':
         print('relocat: ', x)
         insertion_operator(x, Points)
         print('insertion: ', x)
+        exchange_unvisited_operator(x,Points)
+        print('unvisited: ',x)
         print(calculate_total_travel_time(x[0], Points))
         print(calculate_total_travel_time(x[1], Points))
         # line 5 in algorithm 1
