@@ -225,7 +225,6 @@ def insertion_operator(solution, nodes):
     for path in solution:
         unvisited_nodes = [i for i in unvisited_nodes if i not in path]
 
-
     while True:
         feasible_nodes = find_feasibles_for_insert(solution, unvisited_nodes, nodes)
         if len(feasible_nodes) == 0:
@@ -239,10 +238,11 @@ def insertion_operator(solution, nodes):
         feasible_node_with_largest_dpv = nodes[sorted_largest_dpv_feasible_nodes[0][0]]
 
         # index of best position for insert
-        index = sorted_largest_dpv_feasible_nodes[0][1]
+        path_index = sorted_largest_dpv_feasible_nodes[0][1][0]
+        node_index = sorted_largest_dpv_feasible_nodes[0][1][1]
 
         # inserted into the best position of the incumbent solution
-        solution[int(index[0])].insert(int(index[1]), feasible_node_with_largest_dpv)
+        solution[path_index].insert(node_index, feasible_node_with_largest_dpv)
 
         # update list of unvisited nodes
         unvisited_nodes.remove(feasible_node_with_largest_dpv)
@@ -260,10 +260,14 @@ def dynamic_preference_values(solution, feasible_nodes, nodes):
         sorted_delta_t_for_node = calculate_delta(solution, node, nodes)
 
         # ΔT (x, i, 1)
-        delta_t_best_position = sorted_delta_t_for_node[0][1]
+        delta_t_best_position = sorted_delta_t_for_node[0][2]
 
         # ΔT (x, i, 3)
-        delta_t_3th_best_position = sorted_delta_t_for_node[2][1]
+        if len(sorted_delta_t_for_node) > 2:
+            delta_t_3th_best_position = sorted_delta_t_for_node[2][2]
+        else:
+            delta_t_3th_best_position = 0
+
         while True:
             # u ∈ (0, 1] is a uniformly distributed random number
             u = random.uniform(0, 1)
@@ -285,7 +289,10 @@ def dynamic_preference_values(solution, feasible_nodes, nodes):
 
         # make a list with node id and the index of best position to insert in solution and dynamic preference value
         # of the node
-        id_index_dpv = [node[3], sorted_delta_t_for_node[0][0], dpv]
+        path_index=sorted_delta_t_for_node[0][0]
+        node_index=sorted_delta_t_for_node[0][1]
+
+        id_index_dpv = [node[3], [path_index, node_index], dpv]
 
         # add above list to dynamic preference values list
         dpvs.append(id_index_dpv)
@@ -298,8 +305,7 @@ def dynamic_preference_values(solution, feasible_nodes, nodes):
 # ΔT (x, i, k) be the increment of travel time caused by
 # inserting i into the kth best position
 def calculate_delta(solution, feasible_node, nodes):
-    delta_T = {}
-
+    delta_t = []
     solution_travel_time = 0
     for path in solution:
         solution_travel_time += calculate_total_travel_time(path, nodes)
@@ -312,25 +318,22 @@ def calculate_delta(solution, feasible_node, nodes):
 
             new_path_travel_time = calculate_total_travel_time(tmp_path, nodes)
 
-            new_solution_travel_time = new_path_travel_time
+            if new_path_travel_time <= Tmax:
+                new_solution_travel_time = new_path_travel_time
 
-            for path2 in solution:
-                if path2 != path:
-                    new_solution_travel_time += calculate_total_travel_time(path2, nodes)
+                for path2 in solution:
+                    if path2 != path:
+                        new_solution_travel_time += calculate_total_travel_time(path2, nodes)
 
-            increment_of_travel_time = new_solution_travel_time - solution_travel_time
+                increment_of_travel_time = new_solution_travel_time - solution_travel_time
 
-            # make the index
-            index = str(solution.index(path)) + str(i)
-
-            # append to dictionary
-            delta_T[index] = increment_of_travel_time
-
+                # make the index
+                path_index=solution.index(path)
+                node_index=i
+                delta_t.append([path_index, node_index, increment_of_travel_time])
     # SORT in ascending order according to increment of travel time
-    sorted_delta_T = sorted(
-        delta_T.items(), key=lambda x: x[1], reverse=False)
-
-    return sorted_delta_T
+    delta_t.sort(key=lambda e: e[2])
+    return delta_t
 
 
 def find_feasibles_for_insert(solution, unvisited_nodes, nodes):
@@ -728,6 +731,7 @@ if __name__ == '__main__':
     for counter in range(1):  # N is the maximum number of incumbent solutions
         # line 4 in algorithm 1
         x = initialization(Points)
+
         print('round ', counter, 'x= ', x)
         x = mimic_operator(Points, x)
         print('mimic: ', x)
@@ -741,6 +745,8 @@ if __name__ == '__main__':
         print('relocat: ', x)
         insertion_operator(x, Points)
         print('insertion: ', x)
+        print(calculate_total_travel_time(x[0], Points))
+        print(calculate_total_travel_time(x[1], Points))
         # line 5 in algorithm 1
         if not (IS.__contains__(x)):
             IS.append(x)
