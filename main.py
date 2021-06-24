@@ -7,7 +7,7 @@ import math
 from numpy.linalg import norm
 import numpy as np
 import random
-
+import copy
 
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
@@ -218,6 +218,65 @@ def mimic_operator(nodes, solution):
 
 
 # def local_search(nodes,solution):
+def local_search(solutio, nodes):
+    # first step of local search
+
+    first_step_local_search(solutio,nodes)
+
+    # second step of local search
+
+    second_step_local_search(solutio,nodes)
+
+
+# first step of local search
+def first_step_local_search(solutio,nodes):
+    while True:
+
+        tmp_solution = list(solutio)
+
+        two_opt_operator(solutio, nodes)
+
+        print('two:  ', solutio)
+
+        exchange_operator(solutio, nodes)
+
+        print('exchange: ', solutio)
+
+        cross_operator(solutio, nodes)
+
+        print('cross: ', solutio)
+
+        relocate_operator(solutio, nodes)
+
+        print('relocat: ', solutio)
+
+        # once all these operators cannot find an improved solution , the first step stops and the second step begins.
+        if tmp_solution == solutio:
+            break
+
+
+# second step of local search
+def second_step_local_search(solutio,nodes):
+    while True:
+        tmp_sol=[]
+        for i in range(len(solutio)):
+            tmp_sol.append(solutio[i][:])
+        print('tmp      : ',tmp_sol)
+
+        insertion_operator(solutio, nodes)
+        print('tmp2     : ',tmp_sol)
+
+        print('insertion: ', solutio)
+
+        exchange_unvisited_operator(solutio, nodes)
+
+        print('unvisited: ', solutio)
+
+        # Once both of the operators,
+        # used in the second step cannot find a better solution, local search stops
+        if tmp_sol == solutio:
+            break
+
 
 # exchange unvisited operator
 def exchange_unvisited_operator(solution, nodes):
@@ -240,7 +299,7 @@ def exchange_unvisited_operator(solution, nodes):
                     tmp_path = list(path)
                     tmp_path[path.index(node)] = unvisited
 
-                    if calculate_total_travel_time(tmp_path,nodes) <= Tmax:  # it is feasible
+                    if calculate_total_travel_time(tmp_path, nodes) <= Tmax:  # it is feasible
                         if unvisited[2] > node[2]:  # so it can increase total
                             # received reward
                             solution[solution.index(path)] = tmp_path
@@ -252,7 +311,10 @@ def exchange_unvisited_operator(solution, nodes):
                                 path.index(node) == (len(path) - 1) and solution.index(path) == (len(solution) - 1):
                             find_better_solution = False
 
+    return solution
 
+
+# insertion operator
 def insertion_operator(solution, nodes):
     # find unvisited nodes
     unvisited_nodes = list(nodes[1:len(nodes) - 1])
@@ -276,10 +338,12 @@ def insertion_operator(solution, nodes):
         node_index = sorted_largest_dpv_feasible_nodes[0][1][1]
 
         # inserted into the best position of the incumbent solution
+
         solution[path_index].insert(node_index, feasible_node_with_largest_dpv)
 
         # update list of unvisited nodes
         unvisited_nodes.remove(feasible_node_with_largest_dpv)
+    return solution
 
 
 def dynamic_preference_values(solution, feasible_nodes, nodes):
@@ -769,20 +833,22 @@ if __name__ == '__main__':
         print('round ', counter, 'x= ', x)
         x = mimic_operator(Points, x)
         print('mimic: ', x)
-        two_opt_operator(x, Points)
-        print('two_opt: ', x)
-        exchange_operator(x, Points)
-        print('exchange: ', x)
-        cross_operator(x, Points)
-        print('cross: ', x)
-        relocate_operator(x, Points)
-        print('relocat: ', x)
-        insertion_operator(x, Points)
-        print('insertion: ', x)
-        exchange_unvisited_operator(x,Points)
-        print('unvisited: ',x)
-        print(calculate_total_travel_time(x[0], Points))
-        print(calculate_total_travel_time(x[1], Points))
+
+        local_search(x, Points)
+        # two_opt_operator(x, Points)
+        # print('two_opt: ', x)
+        # exchange_operator(x, Points)
+        # print('exchange: ', x)
+        # cross_operator(x, Points)
+        # print('cross: ', x)
+        # relocate_operator(x, Points)
+        # print('relocat: ', x)
+        # insertion_operator(x, Points)
+        # print('insertion: ', x)
+        # exchange_unvisited_operator(x, Points)
+        # print('unvisited: ', x)
+        # print(calculate_total_travel_time(x[0], Points))
+        # print(calculate_total_travel_time(x[1], Points))
         # line 5 in algorithm 1
         if not (IS.__contains__(x)):
             IS.append(x)
@@ -803,12 +869,3 @@ if __name__ == '__main__':
         # for i in range(IS_size):
         #     # line 12 in algorithm 1
         #     x=
-
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
-
-def localSearch(solution, nodes):
-    two_opt_operator(solution, nodes)
-    exchange_operator(solution, nodes)
-    cross_operator(solution, nodes)
-    relocate_operator(solution, nodes)
