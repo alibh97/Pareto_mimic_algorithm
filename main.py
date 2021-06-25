@@ -9,6 +9,7 @@ import numpy as np
 import random
 import copy
 
+
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
     print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
@@ -221,15 +222,15 @@ def mimic_operator(nodes, solution):
 def local_search(solutio, nodes):
     # first step of local search
 
-    first_step_local_search(solutio,nodes)
+    first_step_local_search(solutio, nodes)
 
     # second step of local search
 
-    second_step_local_search(solutio,nodes)
+    second_step_local_search(solutio, nodes)
 
 
 # first step of local search
-def first_step_local_search(solutio,nodes):
+def first_step_local_search(solutio, nodes):
     while True:
 
         tmp_solution = list(solutio)
@@ -256,15 +257,15 @@ def first_step_local_search(solutio,nodes):
 
 
 # second step of local search
-def second_step_local_search(solutio,nodes):
+def second_step_local_search(solutio, nodes):
     while True:
-        tmp_sol=[]
+        tmp_sol = []
         for i in range(len(solutio)):
             tmp_sol.append(solutio[i][:])
-        print('tmp      : ',tmp_sol)
+        print('tmp      : ', tmp_sol)
 
         insertion_operator(solutio, nodes)
-        print('tmp2     : ',tmp_sol)
+        print('tmp2     : ', tmp_sol)
 
         print('insertion: ', solutio)
 
@@ -346,11 +347,11 @@ def insertion_operator(solution, nodes):
     return solution
 
 
-def dynamic_preference_values(solution, feasible_nodes, nodes):
+def dynamic_preference_values(solution, unvisited_nodes, nodes):
     # list of dynamic preference values with node id's and best position index
     dpvs = []
 
-    for node in feasible_nodes:
+    for node in unvisited_nodes:
         # ΔT (x, i, k) be the increment of travel time caused by
         # inserting i into the kth best position
 
@@ -398,6 +399,34 @@ def dynamic_preference_values(solution, feasible_nodes, nodes):
     # dpvs list is sorted based on dpv of the nodes in descending order
     dpvs.sort(reverse=True, key=lambda e: e[2])
     return dpvs
+
+
+def calculate_delta_for_swallow(solution, unvisited_node, nodes):
+    delta_t = []
+    solution_travel_time = 0
+    for path in solution:
+        solution_travel_time += calculate_total_travel_time(path, nodes)
+
+    for path in solution:
+        for i in range(len(path) + 1):
+            tmp_path = list(path)
+
+            tmp_path.insert(i, unvisited_node)
+
+            new_solution_travel_time = calculate_total_travel_time(tmp_path, nodes)
+            for path2 in solution:
+                if path2 != path:
+                    new_solution_travel_time += calculate_total_travel_time(path2, nodes)
+
+            increment_of_travel_time = new_solution_travel_time - solution_travel_time
+
+            # make the index
+            path_index = solution.index(path)
+            node_index = i
+            delta_t.append([path_index, node_index, increment_of_travel_time])
+    # SORT in ascending order according to increment of travel time
+    delta_t.sort(key=lambda e: e[2])
+    return delta_t
 
 
 # ΔT (x, i, k) be the increment of travel time caused by
