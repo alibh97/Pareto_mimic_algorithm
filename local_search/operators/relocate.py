@@ -3,44 +3,54 @@ from file_content import no_nodes, no_paths, Tmax, Points,integer_parameter,simi
 import local_search.functions as functions
 
 
-# relocate operator
-def relocate_operator(solution, nodes):
-    finding_better_solution = True
-    while finding_better_solution:
-        flag = False
+def relocate_operator(solution,nodes):
+    while True:
+        current_solution_travel_time = 0
+        for p in solution:
+            current_solution_travel_time += functions.calculate_total_travel_time(p, nodes)
+
+        # a list of all neighboring solutions
+        neighborhood=[]
         for path1 in solution:
-            if flag:
-                break
-            travel_time_path1 = functions.calculate_total_travel_time(path1, nodes)
             for node1 in path1:
-                if flag:
-                    break
-                relocate_node = node1
+                relocate_node=node1
                 current_path1 = list(path1)
                 current_path1.remove(relocate_node)
-                new_travel_time_path1 = functions.calculate_total_travel_time(current_path1, nodes)
-                reduction_time_path1 = travel_time_path1 - new_travel_time_path1
                 for path2 in solution:
-                    if flag:
-                        break
-                    if path1 != path2:
-                        travel_time_path2 = functions.calculate_total_travel_time(path2, nodes)
-                        for i in range(len(path2) + 1):
+                    if path1!=path2:
+                        for i in range(len(path2)+1):
+                            # a neighboring solution is made of a change in solution
+                            neighboring_solution=list(solution)
+
                             current_path2 = list(path2)
                             current_path2.insert(i, relocate_node)
-                            new_travel_time_path2 = functions.calculate_total_travel_time(current_path2, nodes)
-                            increased_time_path2 = new_travel_time_path2 - travel_time_path2
-                            if increased_time_path2 < reduction_time_path1 and \
-                                    new_travel_time_path2 <= Tmax and \
-                                    new_travel_time_path1 <= Tmax:
-                                solution[solution.index(path1)] = current_path1
-                                solution[solution.index(path2)] = current_path2
-                                flag = True
-                                break
-                            else:
-                                if i == len(path2) and \
-                                        solution.index(path2) == (len(solution) - 2) and \
-                                        path1.index(node1) == (len(path1) - 1) and \
-                                        solution.index(path1) == (len(solution) - 1):
-                                    finding_better_solution = False
-    return solution
+
+                            travel_time_new_path1 = functions.calculate_total_travel_time(current_path1, nodes)
+
+                            travel_time_new_path2 = functions.calculate_total_travel_time(current_path2, nodes)
+
+                            # if paths are feasible , neighboring solution will be made
+                            if travel_time_new_path1<=Tmax and travel_time_new_path2<=Tmax:
+                                neighboring_solution[solution.index(path1)] = current_path1
+                                neighboring_solution[solution.index(path2)] = current_path2
+
+                                neighboring_solution_travel_time = 0
+                                for p in neighboring_solution:
+                                    neighboring_solution_travel_time += functions.calculate_total_travel_time(p, nodes)
+
+                                neighborhood.append([neighboring_solution, neighboring_solution_travel_time])
+
+        # sort the neighboring solutions in ascending order based on their travel time
+        neighborhood.sort(reverse=False, key=lambda n: n[1])
+
+        # If the travel time of the best neighboring solution is smaller than the one of the current solution,
+        # then the best neighboring solution will be accepted as the new current solution and the operator repeats.
+        best_neighboring_solution_travel_time = neighborhood[0][1]
+        if best_neighboring_solution_travel_time < current_solution_travel_time:
+            best_neighboring_solution = neighborhood[0][0]
+
+            solution[:] = best_neighboring_solution
+        else:
+            # Otherwise, the operator stops.
+            break
+
