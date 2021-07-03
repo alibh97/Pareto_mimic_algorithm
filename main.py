@@ -12,6 +12,7 @@ from initialization.initialization import initialization
 from mimic.mimic_operator import mimic_operator
 from local_search.local_search import local_search
 from swallow.swallow_operator import swallow_operator
+from local_search.operators.two_opt import two_opt_operator
 from file_content import no_nodes, no_paths, Tmax, Points,integer_parameter,similarity_ratio
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
@@ -59,8 +60,9 @@ if __name__ == '__main__':
         print('round ', counter, 'x= ', x)
         x = mimic_operator(Points, x)
         print('mimic: ', x)
-
-        local_search(x, Points)
+        two_opt_operator(x,Points)
+        print('two_opt: ', x)
+        # local_search(x, Points)
         # two_opt_operator(x, Points)
         # print('two_opt: ', x)
         # exchange_operator(x, Points)
