@@ -24,7 +24,7 @@ def two_opt_operator(solution, nodes):
                         neighboring_solution_travel_time += functions.calculate_total_travel_time(p, nodes)
                     neighborhood.append([neighboring_solution, neighboring_solution_travel_time])
             # sort the neighboring solutions in ascending order based on their travel time
-            neighborhood.sort(reverse=False, key=lambda s: s[1])
+            neighborhood.sort(reverse=False, key=lambda n: n[1])
             # If the travel time of the best neighboring solution is smaller than the one of the current solution,
             # then the best neighboring solution will be accepted as the new current solution and the operator repeats.
             best_neighboring_solution_travel_time = neighborhood[0][1]
