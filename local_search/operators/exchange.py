@@ -1,6 +1,5 @@
 import local_search.functions as functions
-
-
+from file_content import no_nodes, no_paths, Tmax, Points, integer_parameter, similarity_ratio
 
 
 def exchange_operator(solution, nodes):
@@ -25,14 +24,21 @@ def exchange_operator(solution, nodes):
                             current_path1[index_node1_in_path1] = node2
                             current_path2[index_node2_in_path2] = node1
 
-                            neighboring_solution[solution.index(path1)] = current_path1
-                            neighboring_solution[solution.index(path2)] = current_path2
+                            new_travel_time1 = functions.calculate_total_travel_time(current_path1, nodes)
+                            new_travel_time2 = functions.calculate_total_travel_time(current_path2, nodes)
 
-                            neighboring_solution_travel_time = 0
-                            for p in neighboring_solution:
-                                neighboring_solution_travel_time += functions.calculate_total_travel_time(p, nodes)
+                            # if new paths are feasible , neighboring solution will be made
+                            if new_travel_time1 <= Tmax and new_travel_time2 <= Tmax:
 
-                            neighborhood.append([neighboring_solution, neighboring_solution_travel_time])
+                                neighboring_solution[solution.index(path1)] = current_path1
+                                neighboring_solution[solution.index(path2)] = current_path2
+
+                                neighboring_solution_travel_time = 0
+                                for p in neighboring_solution:
+                                    neighboring_solution_travel_time += functions.calculate_total_travel_time(p, nodes)
+
+                                neighborhood.append([neighboring_solution, neighboring_solution_travel_time])
+
                             current_path1 = list(path1)
                             current_path2 = list(path2)
         # sort the neighboring solutions in ascending order based on their travel time

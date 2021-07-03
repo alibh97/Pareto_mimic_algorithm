@@ -1,4 +1,5 @@
 import local_search.functions as functions
+from file_content import no_nodes, no_paths, Tmax, Points,integer_parameter,similarity_ratio
 
 
 def two_opt_operator(solution, nodes):
@@ -18,11 +19,17 @@ def two_opt_operator(solution, nodes):
                 for k in range(i + 1, no_nodes_to_swap):
                     neighboring_solution = list(solution)
                     new_path = functions.two_opt_swap(current_path, i, k)
-                    neighboring_solution[solution.index(current_path)] = new_path
-                    neighboring_solution_travel_time = 0
-                    for p in neighboring_solution:
-                        neighboring_solution_travel_time += functions.calculate_total_travel_time(p, nodes)
-                    neighborhood.append([neighboring_solution, neighboring_solution_travel_time])
+
+                    new_travel_time = functions.calculate_total_travel_time(new_path, nodes)
+
+                    # if new path is feasible , neighboring solution will be made
+                    if new_travel_time <= Tmax:
+
+                        neighboring_solution[solution.index(current_path)] = new_path
+                        neighboring_solution_travel_time = 0
+                        for p in neighboring_solution:
+                            neighboring_solution_travel_time += functions.calculate_total_travel_time(p, nodes)
+                        neighborhood.append([neighboring_solution, neighboring_solution_travel_time])
             # sort the neighboring solutions in ascending order based on their travel time
             neighborhood.sort(reverse=False, key=lambda n: n[1])
             # If the travel time of the best neighboring solution is smaller than the one of the current solution,
