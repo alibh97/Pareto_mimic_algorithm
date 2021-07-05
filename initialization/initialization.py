@@ -41,7 +41,6 @@ def initialization(nodes):  # initialization func, construct at most m(no_paths)
                 else:
                     no_unvisited_feasible_nodes = functions.find_no_unvisited_feasible(unvisited_nodes, remaining_time,
                                                                              current_node)
-
                 # line 16 , Algorithm 2
                 # minimum(l) is the min of μ and γ (Integer Parameter)
                 minimum = min(no_unvisited_feasible_nodes, integer_parameter)
@@ -49,13 +48,19 @@ def initialization(nodes):  # initialization func, construct at most m(no_paths)
                 if minimum > 0:
                     # line 18 , Algorithm 2
                     # get favorite nodes of current node
-                    current_node_favorite_nodes = fav_nodes[current_node[3]]
+                    if len(path)==0:
+                        current_node_favorite_nodes = fav_nodes[nodes[0][3]]
+                    else:
+                        current_node_favorite_nodes = fav_nodes[current_node[3]]
                     # find feasible favorite nodes of current node
-                    current_node_feasible_favorite_nodes = functions.find_feasibles(current_node_favorite_nodes, remaining_time,
+                    if len(path)==0:
+                        current_node_feasible_favorite_nodes=functions.find_feasibles(current_node_favorite_nodes, remaining_time, nodes[0])
+                    else:
+                        current_node_feasible_favorite_nodes = functions.find_feasibles(current_node_favorite_nodes, remaining_time,
                                                                           current_node)
+
                     # the next node is randomly chosen from the best l nodes in terms of their static preference values
                     best_l_nodes = current_node_feasible_favorite_nodes[0:minimum]
-
                     # randomly choose from best l (l=minimum of  μ and γ) nodes
                     index = int(random.random() * minimum)
                     node = best_l_nodes[index]
@@ -65,8 +70,13 @@ def initialization(nodes):  # initialization func, construct at most m(no_paths)
                     flag = True
 
                     # calculate the cost ( time ) of going from current node, to next node
-                    cost_i_to_j = norm(
-                        np.array([current_node[0], current_node[1]]) - np.array([next_node[0], next_node[1]]))
+                    if len(path)==0:
+                        cost_i_to_j = norm(
+                            np.array([nodes[0][0], nodes[0][1]]) - np.array([next_node[0], next_node[1]]))
+                    else:
+
+                        cost_i_to_j = norm(
+                            np.array([current_node[0], current_node[1]]) - np.array([next_node[0], next_node[1]]))
 
                     remaining_time -= cost_i_to_j  # update remaining time
 
@@ -82,5 +92,6 @@ def initialization(nodes):  # initialization func, construct at most m(no_paths)
                 current_node = next_node
             else:
                 break
-        paths.append(path)
+        if len(path)>0:
+            paths.append(path)
     return paths

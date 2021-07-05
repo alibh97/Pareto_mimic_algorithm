@@ -42,7 +42,6 @@ def static_preference_values(nodes, index):
 # this function finds number of unvisited feasible nodes out of unvisited nodes so far and return it
 def find_no_unvisited_feasible(unvisited_so_far, remaining_time, current_node):
     no_unvisited_feasible_nodes = 0  # this will be returned as result
-
     for unvisited in unvisited_so_far:
         # calculate cost of going from current node i to next node j (1 <= j <= n)
         cost_i_to_j = norm(

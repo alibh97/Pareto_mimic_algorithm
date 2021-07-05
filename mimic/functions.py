@@ -126,6 +126,7 @@ def is_feasible(current_node, node, remaining_time, paths, path):
 
     cost_j_to_end = norm(
         np.array([node[0], node[1]]) - np.array([Points[no_nodes - 1][0], Points[no_nodes - 1][1]]))
+
     if (cost_i_to_j + cost_j_to_end) <= remaining_time:
         return True
     else:

@@ -37,12 +37,11 @@ def mimic_operator(nodes, solution):
                 # line 9 , Algorithm 2
                 # set node := the next node of currentNode in xI(solution passed to this function)
                 node, is_for_next_path = functions.find_next(solution, current_node)
-
                 # line 10 , Algorithm 2
                 if functions.is_feasible(current_node, node, remaining_time, paths, path):
                     # calculate the cost ( time ) of going from current node, to next node
                     if path.__len__() == 0:
-                        # if the node be the first node of path , the current node is cone 0
+                        # if the node be the first node of path , the current node is node 0
                         cost_i_to_j = norm(
                             np.array([nodes[0][0], nodes[0][1]]) - np.array([node[0], node[1]]))
                     else:
@@ -69,16 +68,25 @@ def mimic_operator(nodes, solution):
                                                                              current_node)
                 # line 16 , Algorithm 2
                 # minimum(l) is the min of μ and γ (Integer Parameter)
+
                 minimum = min(no_unvisited_feasible_nodes, integer_parameter)
                 # line 17 , Algorithm 2
                 if minimum > 0:
                     # line 18 , Algorithm 2
                     # get favorite nodes of current node
-                    current_node_favorite_nodes = fav_nodes[current_node[3]]
+                    if len(path)==0:
+                        current_node_favorite_nodes = fav_nodes[nodes[0][3]]
+                    else:
+                        current_node_favorite_nodes = fav_nodes[current_node[3]]
 
                     # find feasible favorite nodes of current node
-                    current_node_feasible_favorite_nodes = functions.find_feasibles(current_node_favorite_nodes, remaining_time,
-                                                                          current_node)
+                    if len(path) == 0:
+                        current_node_feasible_favorite_nodes = functions.find_feasibles(current_node_favorite_nodes,
+                                                                                        remaining_time, nodes[0])
+                    else:
+                        current_node_feasible_favorite_nodes = functions.find_feasibles(current_node_favorite_nodes,
+                                                                                        remaining_time,
+                                                                                        current_node)
 
                     # the next node is randomly chosen from the best l nodes in terms of their static preference values
                     best_l_nodes = current_node_feasible_favorite_nodes[0:minimum]
@@ -92,8 +100,14 @@ def mimic_operator(nodes, solution):
                     flag = True
 
                     # calculate the cost ( time ) of going from current node, to next node
-                    cost_i_to_j = norm(
-                        np.array([current_node[0], current_node[1]]) - np.array([next_node[0], next_node[1]]))
+                    if len(path) == 0:
+                        cost_i_to_j = norm(
+                            np.array([nodes[0][0], nodes[0][1]]) - np.array([next_node[0], next_node[1]]))
+                    else:
+
+                        cost_i_to_j = norm(
+                            np.array([current_node[0], current_node[1]]) - np.array([next_node[0], next_node[1]]))
+
 
                     remaining_time -= cost_i_to_j  # update remaining time
 
