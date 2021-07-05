@@ -1,4 +1,4 @@
-from file_content import no_nodes, no_paths, Tmax, Points,integer_parameter,similarity_ratio
+from file_content import no_nodes, no_paths, Tmax, Points, integer_parameter, similarity_ratio
 from numpy.linalg import norm
 import numpy as np
 import random
@@ -125,3 +125,12 @@ def calculate_total_travel_time(path, nodes):
 
     return travel_time
 
+
+# this func tell us whether the solution is feasible or not
+def is_solution_feasible(solution, nodes):
+    answer = True
+    for path in solution:
+        if calculate_total_travel_time(path, nodes) > Tmax:
+            answer = False
+            break
+    return answer

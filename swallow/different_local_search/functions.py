@@ -36,3 +36,13 @@ def two_opt_swap(path, i, k):
     for c in range(k + 1, len(path)):
         new_path.append(path[c])
     return new_path
+
+
+# this func tell us whether the solution is feasible or not
+def is_solution_feasible(solution, nodes):
+    answer = True
+    for path in solution:
+        if calculate_total_travel_time(path, nodes) > Tmax:
+            answer = False
+            break
+    return answer
