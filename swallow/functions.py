@@ -134,3 +134,10 @@ def is_solution_feasible(solution, nodes):
             answer = False
             break
     return answer
+
+
+def solution_travel_time(solution,nodes):
+    travel_time=0
+    for path in solution:
+        travel_time+=calculate_total_travel_time(path,nodes)
+    return travel_time

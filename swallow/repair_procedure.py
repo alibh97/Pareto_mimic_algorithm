@@ -13,6 +13,3 @@ def repair_procedure(solution,index_of_route_Rl,nodes):
 
     # Otherwise it will be further repaired by a removal procedure.
     removal_procedure(solution,index_of_route_Rl,nodes)
-    print('solution: ',solution[0])
-    print('solution: ',solution[1])
-    print(calculate_total_travel_time(solution[index_of_route_Rl],nodes))

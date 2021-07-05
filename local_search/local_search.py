@@ -30,19 +30,19 @@ def first_step_local_search(solutio, nodes):
 
         two_opt_operator(solutio, nodes)
 
-        print('two:  ', solutio)
+        # print('two:  ', solutio)
 
         exchange_operator(solutio, nodes)
 
-        print('exchange: ', solutio)
+        # print('exchange: ', solutio)
 
         cross_operator(solutio, nodes)
 
-        print('cross: ', solutio)
+        # print('cross: ', solutio)
 
         relocate_operator(solutio, nodes)
 
-        print('relocat: ', solutio)
+        # print('relocat: ', solutio)
 
         # once all these operators cannot find an improved solution , the first step stops and the second step begins.
         if tmp_solution == solutio:
@@ -55,16 +55,16 @@ def second_step_local_search(solutio, nodes):
         tmp_sol = []
         for i in range(len(solutio)):
             tmp_sol.append(solutio[i][:])
-        print('tmp      : ', tmp_sol)
+        # print('tmp      : ', tmp_sol)
 
         insertion_operator(solutio, nodes)
-        print('tmp2     : ', tmp_sol)
+        # print('tmp2     : ', tmp_sol)
 
-        print('insertion: ', solutio)
+        # print('insertion: ', solutio)
 
         exchange_unvisited_operator(solutio, nodes)
 
-        print('unvisited: ', solutio)
+        # print('unvisited: ', solutio)
 
         # Once both of the operators,
         # used in the second step cannot find a better solution, local search stops

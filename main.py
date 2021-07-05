@@ -67,7 +67,8 @@ if __name__ == '__main__':
         print('mimic: ', x)
         local_search(x, Points)
         swallow_operator(x,Points)
-
+        print('swallow: ',x[0])
+        print('swallow: ',x[1])
         # two_opt_operator(x, Points)
         # print('two_opt: ', x)
         # exchange_operator(x, Points)
