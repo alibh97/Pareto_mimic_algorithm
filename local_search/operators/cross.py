@@ -44,20 +44,23 @@ def cross_operator(solution,nodes):
                                 neighborhood.append([neighboring_solution, neighboring_solution_travel_time])
 
         # todo if len >0
+        if len(neighborhood)>0:
 
-        # sort the neighboring solutions in ascending order based on their travel time
-        neighborhood.sort(reverse=False, key=lambda n: n[1])
+            # sort the neighboring solutions in ascending order based on their travel time
+            neighborhood.sort(reverse=False, key=lambda n: n[1])
 
-        # If the travel time of the best neighboring solution is smaller than the one of the current solution,
-        # then the best neighboring solution will be accepted as the new current solution and the operator repeats.
-        best_neighboring_solution_travel_time = neighborhood[0][1]
+            # If the travel time of the best neighboring solution is smaller than the one of the current solution,
+            # then the best neighboring solution will be accepted as the new current solution and the operator repeats.
+            best_neighboring_solution_travel_time = neighborhood[0][1]
 
-        if best_neighboring_solution_travel_time < current_solution_travel_time:
+            if best_neighboring_solution_travel_time < current_solution_travel_time:
 
-            best_neighboring_solution = neighborhood[0][0]
+                best_neighboring_solution = neighborhood[0][0]
 
-            solution[:] = best_neighboring_solution
+                solution[:] = best_neighboring_solution
+            else:
+                # Otherwise, the operator stops.
+                break
         else:
-            # Otherwise, the operator stops.
             break
 
