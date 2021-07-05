@@ -62,7 +62,8 @@ if __name__ == '__main__':
     for counter in range(N):  # N is the maximum number of incumbent solutions
         # line 4 in algorithm 1
         x = initialization(Points)
-        # print('initil:',x)
+        print('initil:',x[0])
+        print('initil:',x[1])
         if not (IS.__contains__(x)) and len(x)>0:
             IS.append(x)
 
@@ -70,7 +71,7 @@ if __name__ == '__main__':
         if Fx(x) > Fx(Xb):
             Xb = list(x)
     # line 8 in algorithm 1
-    for j in range(3000):
+    for j in range(1):
 
 
         # line 9 in algorithm 1
@@ -83,7 +84,7 @@ if __name__ == '__main__':
         for i in range(IS_size):
             # line 12 in algorithm 1
             x= mimic_operator(Points, IS[i])
-            # print('mimic: ', x)
+            print('mimic: ', x)
 
             # line 13 in algorithm 1
             local_search(x, Points)

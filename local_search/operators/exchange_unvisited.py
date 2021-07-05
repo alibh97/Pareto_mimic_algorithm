@@ -23,9 +23,7 @@ def exchange_unvisited_operator(solution, nodes):
                 if flag:
                     break
                 for unvisited in unvisited_nodes:
-                    tmp_path =[]
-                    for pp in path:
-                        tmp_path.append(pp)
+                    tmp_path =list(path)
                     tmp_path[path.index(node)] = unvisited
                     if functions.calculate_total_travel_time(tmp_path, nodes) <= Tmax:  # it is feasible
                         if unvisited[2] > node[2]:  # so it can increase total

@@ -11,8 +11,6 @@ def mimic_operator(nodes, solution):
     # set currentNode := 0
     current_node = nodes[0]
 
-    fav_nodes = functions.favorite_nodes(nodes)  # make a list of favorite nodes for each node
-
     unvisited_nodes = nodes[1:(no_nodes - 1)]  # all unvisited nodes except 0 and n+1
 
     paths = []
@@ -50,7 +48,6 @@ def mimic_operator(nodes, solution):
 
                     remaining_time -= cost_i_to_j  # update remaining time
                     unvisited_nodes.remove(node)  # update unvisited nodes
-                    functions.delete_from_favorite(fav_nodes, node)
                     # line 11 , Algorithm 2
                     next_node = node
                     flag = True
@@ -75,18 +72,18 @@ def mimic_operator(nodes, solution):
                     # line 18 , Algorithm 2
                     # get favorite nodes of current node
                     if len(path)==0:
-                        current_node_favorite_nodes = fav_nodes[nodes[0][3]]
+                        spvs = functions.static_preference_values(nodes, nodes[0][3])
                     else:
-                        current_node_favorite_nodes = fav_nodes[current_node[3]]
+                        spvs = functions.static_preference_values(nodes, current_node[3])
+
+                    sorted_spvs = sorted(
+                        spvs.items(), key=lambda x: x[1], reverse=True)  # sort in descending order according to spvs
 
                     # find feasible favorite nodes of current node
                     if len(path) == 0:
-                        current_node_feasible_favorite_nodes = functions.find_feasibles(current_node_favorite_nodes,
-                                                                                        remaining_time, nodes[0])
+                        current_node_feasible_favorite_nodes=functions.find_feasibles(sorted_spvs, remaining_time, nodes[0],paths,path)
                     else:
-                        current_node_feasible_favorite_nodes = functions.find_feasibles(current_node_favorite_nodes,
-                                                                                        remaining_time,
-                                                                                        current_node)
+                        current_node_feasible_favorite_nodes = functions.find_feasibles(sorted_spvs, remaining_time,current_node,paths,path)
 
                     # the next node is randomly chosen from the best l nodes in terms of their static preference values
                     best_l_nodes = current_node_feasible_favorite_nodes[0:minimum]
@@ -112,7 +109,6 @@ def mimic_operator(nodes, solution):
                     remaining_time -= cost_i_to_j  # update remaining time
 
                     unvisited_nodes.remove(next_node)  # update unvisited nodes
-                    functions.delete_from_favorite(fav_nodes, next_node)  # update favorite nodes
 
             # line 22 , Algorithm 2
             if flag:

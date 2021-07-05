@@ -11,8 +11,6 @@ def initialization(nodes):  # initialization func, construct at most m(no_paths)
     # set currentNode := 0
     current_node = nodes[0]
 
-    fav_nodes = functions.favorite_nodes(nodes)  # make a list of favorite nodes for each node
-
     unvisited_nodes = nodes[1:(no_nodes - 1)]  # all unvisited nodes except 0 and n+1
 
     paths = []
@@ -20,7 +18,6 @@ def initialization(nodes):  # initialization func, construct at most m(no_paths)
     # line 2 , Algorithm 2
     for i in range(no_paths):
         remaining_time = Tmax  # time limit of path
-
         # construct the ith path
         # line 4 , Algorithm 2
         path = []
@@ -41,24 +38,27 @@ def initialization(nodes):  # initialization func, construct at most m(no_paths)
                 else:
                     no_unvisited_feasible_nodes = functions.find_no_unvisited_feasible(unvisited_nodes, remaining_time,
                                                                              current_node)
+
                 # line 16 , Algorithm 2
                 # minimum(l) is the min of μ and γ (Integer Parameter)
                 minimum = min(no_unvisited_feasible_nodes, integer_parameter)
                 # line 17 , Algorithm 2
                 if minimum > 0:
+
                     # line 18 , Algorithm 2
                     # get favorite nodes of current node
                     if len(path)==0:
-                        current_node_favorite_nodes = fav_nodes[nodes[0][3]]
+                        spvs = functions.static_preference_values(nodes, nodes[0][3])
                     else:
-                        current_node_favorite_nodes = fav_nodes[current_node[3]]
+                        spvs = functions.static_preference_values(nodes, current_node[3])
+                    sorted_spvs = sorted(
+                        spvs.items(), key=lambda x: x[1], reverse=True)  # sort in descending order according to spvs
                     # find feasible favorite nodes of current node
                     if len(path)==0:
-                        current_node_feasible_favorite_nodes=functions.find_feasibles(current_node_favorite_nodes, remaining_time, nodes[0])
+                        current_node_feasible_favorite_nodes=functions.find_feasibles(sorted_spvs, remaining_time, nodes[0],paths,path)
                     else:
-                        current_node_feasible_favorite_nodes = functions.find_feasibles(current_node_favorite_nodes, remaining_time,
-                                                                          current_node)
-
+                        current_node_feasible_favorite_nodes = functions.find_feasibles(sorted_spvs, remaining_time,
+                                                                          current_node,paths,path)
                     # the next node is randomly chosen from the best l nodes in terms of their static preference values
                     best_l_nodes = current_node_feasible_favorite_nodes[0:minimum]
                     # randomly choose from best l (l=minimum of  μ and γ) nodes
@@ -66,7 +66,7 @@ def initialization(nodes):  # initialization func, construct at most m(no_paths)
                     node = best_l_nodes[index]
 
                     # line 19 , Algorithm 2
-                    next_node = nodes[node[0]]
+                    next_node = nodes[int(node[0])]
                     flag = True
 
                     # calculate the cost ( time ) of going from current node, to next node
@@ -81,7 +81,6 @@ def initialization(nodes):  # initialization func, construct at most m(no_paths)
                     remaining_time -= cost_i_to_j  # update remaining time
 
                     unvisited_nodes.remove(next_node)  # update unvisited nodes
-                    functions.delete_from_favorite(fav_nodes, next_node)  # update favorite nodes
 
             # line 22 , Algorithm 2
             if flag:

@@ -56,12 +56,11 @@ def find_no_unvisited_feasible(unvisited_so_far, remaining_time, current_node):
         # then node j is a feasible node
         if (cost_i_to_j + cost_j_to_end) <= remaining_time:
             no_unvisited_feasible_nodes += 1
-
     return no_unvisited_feasible_nodes
 
 
 # this func find feasible nodes out of favorite nodes of current node
-def find_feasibles(current_node_favorite_nodes, remaining_time, current_node):
+def find_feasibles(current_node_favorite_nodes, remaining_time, current_node,paths,path):
     current_node_feasible_favorite_nodes = []
     for favorite_node in current_node_favorite_nodes:
         cost_i_to_j = norm(
@@ -74,8 +73,18 @@ def find_feasibles(current_node_favorite_nodes, remaining_time, current_node):
 
         # if condition be TRUE, so this favorite node is feasible
         if (cost_i_to_j + cost_j_to_end) <= remaining_time:
-            current_node_feasible_favorite_nodes.append(favorite_node)
 
+            if not path.__contains__(Points[int(favorite_node[0])]):
+                if len(paths)>0:
+                    flag=True
+                    for p in paths:
+                        if p.__contains__(Points[int(favorite_node[0])]):
+                            flag=False
+
+                    if flag:
+                        current_node_feasible_favorite_nodes.append(favorite_node)
+                else:
+                    current_node_feasible_favorite_nodes.append(favorite_node)
     return current_node_feasible_favorite_nodes
 
 # this func deletes the chosen next node from all node's favorite nodes, and update fav_nodes list
