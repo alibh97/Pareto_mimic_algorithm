@@ -9,14 +9,17 @@ def swallow_operator(solution,nodes):
     for path in solution:
         unvisited_nodes = [i for i in unvisited_nodes if i not in path]
 
-    while True:
+    for i in range(1):
         if len(unvisited_nodes)==0:
             # there is no unvisited nodes to insert
             break
 
         # the swallow operator tries to insert an unvisited node with the largest dynamic preference value
         # suppose that node i is inserted into route Rl
+
         route_Rl=functions.insertion(nodes, solution, unvisited_nodes)
+        print('Rl  :',route_Rl)
+
         # route_Rl is index of the route(path) which node i has been inserted in
 
         # todo repair procedure

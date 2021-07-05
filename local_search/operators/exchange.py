@@ -41,6 +41,7 @@ def exchange_operator(solution, nodes):
 
                             current_path1 = list(path1)
                             current_path2 = list(path2)
+        # todo if len >0
         # sort the neighboring solutions in ascending order based on their travel time
 
         neighborhood.sort(reverse=False, key=lambda n: n[1])

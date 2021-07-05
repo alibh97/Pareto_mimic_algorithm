@@ -17,6 +17,7 @@ from local_search.operators.exchange import exchange_operator
 from local_search.operators.cross import cross_operator
 from local_search.operators.relocate import relocate_operator
 
+from swallow.swallow_operator import swallow_operator
 from file_content import no_nodes, no_paths, Tmax, Points,integer_parameter,similarity_ratio
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
@@ -76,6 +77,7 @@ if __name__ == '__main__':
         relocate_operator(x,Points)
         print('relocat: ', x[0])
         print('relocat: ', x[1])
+        swallow_operator(x,Points)
         # local_search(x, Points)
         # two_opt_operator(x, Points)
         # print('two_opt: ', x)

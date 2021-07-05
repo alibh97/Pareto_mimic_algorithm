@@ -42,6 +42,9 @@ def cross_operator(solution,nodes):
                                     neighboring_solution_travel_time += functions.calculate_total_travel_time(p, nodes)
 
                                 neighborhood.append([neighboring_solution, neighboring_solution_travel_time])
+
+        # todo if len >0
+
         # sort the neighboring solutions in ascending order based on their travel time
         neighborhood.sort(reverse=False, key=lambda n: n[1])
 
