@@ -15,7 +15,7 @@ def read_file(name):
     return n, p, tmax, nodes  # return extracted variables
 
 
-no_nodes, no_paths, Tmax, Points = read_file('p7.4.t.txt')  # extract variables from the file ,
+no_nodes, no_paths, Tmax, Points = read_file('p1.2.m.txt')  # extract variables from the file ,
 # first is the number of vertices , n
 # seconds is the number of paths , m
 # Tmax is the available time budget per path
