@@ -19,8 +19,13 @@ def exchange_unvisited_operator(solution, nodes):
             for node in path:
                 if flag:
                     break
-                for unvisited in unvisited_nodes:
-                    tmp_path = list(path)
+                tmp_unvisited=[]
+                for uu in unvisited_nodes:
+                    tmp_unvisited.append(uu)
+                for unvisited in tmp_unvisited:
+                    tmp_path =[]
+                    for pp in path:
+                        tmp_path.append(pp)
                     tmp_path[path.index(node)] = unvisited
 
                     if functions.calculate_total_travel_time(tmp_path, nodes) <= Tmax:  # it is feasible
@@ -31,6 +36,9 @@ def exchange_unvisited_operator(solution, nodes):
                             flag = True
                             break
                     else:
+                        print('len unvisited: ',len(unvisited_nodes),' index unvisited:',unvisited_nodes.index(unvisited))
+                        print('len path: ',len(path),' ,index node: ',path.index(node))
+                        print('len solution:',len(solution),' index path: ',solution.index(path))
                         if unvisited_nodes.index(unvisited) == (len(unvisited_nodes) - 1) and \
                                 path.index(node) == (len(path) - 1) and solution.index(path) == (len(solution) - 1):
                             find_better_solution = False

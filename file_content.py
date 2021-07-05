@@ -21,5 +21,6 @@ no_nodes, no_paths, Tmax, Points = read_file('p1.2.r.txt')  # extract variables 
 # Tmax is the available time budget per path
 # points is a list of nodes(points) with their x & y coordinates and scores
 
+N = 10  # N is the maximum number of incumbent solutions
 integer_parameter = 10  # The integer parameter (γ)
 similarity_ratio = 0.95  # similarity ratio ( α )

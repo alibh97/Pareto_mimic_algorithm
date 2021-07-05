@@ -11,12 +11,13 @@ import random
 from initialization.initialization import initialization
 from mimic.mimic_operator import mimic_operator
 from local_search.local_search import local_search
+
 from swallow.swallow_operator import swallow_operator
 from local_search.operators.two_opt import two_opt_operator
 from local_search.operators.exchange import exchange_operator
 from local_search.operators.cross import cross_operator
 from local_search.operators.relocate import relocate_operator
-
+from pareto_update.update import update
 from swallow.swallow_operator import swallow_operator
 from file_content import no_nodes, no_paths, Tmax, Points,integer_parameter,similarity_ratio
 def print_hi(name):
@@ -70,32 +71,33 @@ if __name__ == '__main__':
             Xb = list(x)
 
     # line 8 in algorithm 1
-    for j in range(3000):
+    for j in range(1):
 
 
         # line 9 in algorithm 1
         IS_size = len(IS)  # the size of IS (U)
 
         # line 10 in algorithm 1
-        auxiliary_set = []  # an  auxiliary set (Q)
+        Q = []  # an  auxiliary set (Q)
 
         # line 11 in algorithm 1
         for i in range(IS_size):
             # line 12 in algorithm 1
             x= mimic_operator(Points, IS[i])
-            # print('mimic: ', x)
+            print('mimic: ', x)
 
             # line 13 in algorithm 1
             local_search(x, Points)
-
+            print('local: ',x)
             # line 14 in algorithm 1
             swallow_operator(x, Points)
+            print('swalow: ',x)
             # print('swallow: ', x[0])
             # print('swallow: ', x[1])
 
             # line 15 in algorithm 1
-            if not (auxiliary_set.__contains__(x)):
-                auxiliary_set.append(x)
+            if not (Q.__contains__(x)):
+                Q.append(x)
 
             # line 16 in algorithm 1
             if Fx(x) > Fx(Xb):
@@ -103,3 +105,8 @@ if __name__ == '__main__':
             print(j,i)
 
         # todo update
+        union_of_Q_and_IS=[i for i in IS if i not in Q]
+        union_of_Q_and_IS+=Q
+        IS=update(union_of_Q_and_IS,Xb)
+        for e in IS:
+            print(e)

@@ -46,6 +46,7 @@ def first_step_local_search(solutio, nodes):
 
         # once all these operators cannot find an improved solution , the first step stops and the second step begins.
         if tmp_solution == solutio:
+            print('first_step')
             break
 
 
@@ -59,15 +60,17 @@ def second_step_local_search(solutio, nodes):
 
         insertion_operator(solutio, nodes)
         # print('tmp2     : ', tmp_sol)
-
+        print('insertion')
         # print('insertion: ', solutio)
 
         exchange_unvisited_operator(solutio, nodes)
-
+        print('exchange_unvisited')
         # print('unvisited: ', solutio)
 
         # Once both of the operators,
         # used in the second step cannot find a better solution, local search stops
         if tmp_sol == solutio:
+            print('second_step')
+
             break
 
