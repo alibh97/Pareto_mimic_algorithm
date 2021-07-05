@@ -58,41 +58,21 @@ if __name__ == '__main__':
 
     N = 10  # N is the maximum number of incumbent solutions
     # line 3 in algorithm 1
-    for counter in range(1):  # N is the maximum number of incumbent solutions
+    for counter in range(N):  # N is the maximum number of incumbent solutions
         # line 4 in algorithm 1
         x = initialization(Points)
 
-        print('round ', counter, 'x= ', x)
-        x = mimic_operator(Points, x)
-        print('mimic: ', x)
-        local_search(x, Points)
-        swallow_operator(x,Points)
-        print('swallow: ',x[0])
-        print('swallow: ',x[1])
-        # two_opt_operator(x, Points)
-        # print('two_opt: ', x)
-        # exchange_operator(x, Points)
-        # print('exchange: ', x)
-        # cross_operator(x, Points)
-        # print('cross: ', x)
-        # relocate_operator(x, Points)
-        # print('relocat: ', x)
-        # insertion_operator(x, Points)
-        # print('insertion: ', x)
-        # exchange_unvisited_operator(x, Points)
-        # print('unvisited: ', x)
-        # print(calculate_total_travel_time(x[0], Points))
-        # print(calculate_total_travel_time(x[1], Points))
-        # line 5 in algorithm 1
         if not (IS.__contains__(x)):
             IS.append(x)
 
         # line 6 in algorithm 1
         if Fx(x) > Fx(Xb):
-            Xb = x
+            Xb = list(x)
 
     # line 8 in algorithm 1
     for j in range(3000):
+
+
         # line 9 in algorithm 1
         IS_size = len(IS)  # the size of IS (U)
 
@@ -100,6 +80,26 @@ if __name__ == '__main__':
         auxiliary_set = []  # an  auxiliary set (Q)
 
         # line 11 in algorithm 1
-        # for i in range(IS_size):
-        #     # line 12 in algorithm 1
-        #     x=
+        for i in range(IS_size):
+            # line 12 in algorithm 1
+            x= mimic_operator(Points, IS[i])
+            # print('mimic: ', x)
+
+            # line 13 in algorithm 1
+            local_search(x, Points)
+
+            # line 14 in algorithm 1
+            swallow_operator(x, Points)
+            # print('swallow: ', x[0])
+            # print('swallow: ', x[1])
+
+            # line 15 in algorithm 1
+            if not (auxiliary_set.__contains__(x)):
+                auxiliary_set.append(x)
+
+            # line 16 in algorithm 1
+            if Fx(x) > Fx(Xb):
+                Xb = list(x)
+            print(j,i)
+
+        # todo update

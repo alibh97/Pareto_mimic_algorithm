@@ -110,4 +110,5 @@ def mimic_operator(nodes, solution):
             else:
                 break
         paths.append(path)
+    # paths variable is the new solution
     return paths
