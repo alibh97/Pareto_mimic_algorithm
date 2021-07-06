@@ -52,8 +52,6 @@ def exchange_operator(solution, index_of_route_Rl, nodes):
 
                             current_path1 = list(path1)
                             current_path2 = list(path2)
-        # todo if len >0
-
         # a neighboring solution is accepted if it is the first one that can shorten the travel time of route Rl
         # and keep the feasibility of other routes.
         if len(neighborhood) > 0:

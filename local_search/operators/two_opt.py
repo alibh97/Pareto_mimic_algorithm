@@ -30,7 +30,6 @@ def two_opt_operator(solution, nodes):
                         for p in neighboring_solution:
                             neighboring_solution_travel_time += functions.calculate_total_travel_time(p, nodes)
                         neighborhood.append([neighboring_solution, neighboring_solution_travel_time])
-            # todo make an if here to check the len of neighborhood
             if len(neighborhood)>0:
 
                 # sort the neighboring solutions in ascending order based on their travel time

@@ -53,8 +53,6 @@ def cross_operator(solution,index_of_route_Rl,nodes):
                                         neighboring_solution[solution.index(path2)] = tmp_path2
                                         neighborhood.append(neighboring_solution)
 
-        # todo if len >0
-
         # a neighboring solution is accepted if it is the first one that can shorten the travel time of route Rl
         # and keep the feasibility of other routes.
         if len(neighborhood) > 0:

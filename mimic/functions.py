@@ -117,7 +117,7 @@ def find_next(solution, node):
                 next_node = path[index + 1]
             else:  # the next node is in the next path so the flag will be true
                 flag = True
-    return next_node, flag
+    return next_node
 
 
 # this func tell us whether the node is feasible or not

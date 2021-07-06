@@ -108,13 +108,11 @@ def calculate_crowding_distances(solutions_along_indicator):
     for c in tmp_crowding_distances:
         crowding_distances.append(c/2)
     solution_indicators_distance=[]
-
+    print('crowding distances:',crowding_distances)
     for i in range(len(indicators)):
         solution_indicators_distance.append([solutions_along_indicator[i][0],indicators[i],crowding_distances[i]])
 
     # sort based on crowding distance in descending order
     solution_indicators_distance.sort(reverse=True,key=lambda s:s[2])
-    for q in solutions_along_indicator:
 
-        print('solinddisssssssssssssss',q)
     return solution_indicators_distance

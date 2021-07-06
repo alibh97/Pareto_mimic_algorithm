@@ -3,23 +3,6 @@ import numpy as np
 
 from file_content import no_nodes, no_paths, Tmax, Points,integer_parameter,similarity_ratio
 
-# for any node i (1<= i <=n ) ,the nodes except 0, i,and n + 1 ,
-# are sorted in descending order according to their static preference values,
-# and then the first L nodes are stored into a list of node i,
-# where L a sufficient large integer (in our experiment, L is chosen as 50).
-def favorite_nodes(nodes):
-    result = []  # the result is a list of 'First L Nodes' for each node i ( 1 <= i <= n)
-
-    for i in range(len(nodes) - 1):
-        spvs = static_preference_values(nodes, i)  # static preference values of other nodes for node i
-        sorted_spvs = sorted(
-            spvs.items(), key=lambda x: x[1], reverse=True)  # sort in descending order according to spvs
-        L = 50
-        first_L_nodes = sorted_spvs[0:L]
-        result.append(first_L_nodes)
-    return result
-
-
 # suppose current node is i ,static preference value of node j , is r_j / c_ij ,
 # r_j is the reward of node j , and c_ij is the travel time of edge(i,j)
 def static_preference_values(nodes, index):
@@ -59,7 +42,7 @@ def find_no_unvisited_feasible(unvisited_so_far, remaining_time, current_node):
     return no_unvisited_feasible_nodes
 
 
-# this func find feasible nodes out of favorite nodes of current node
+# this func find feasible nodes out of sorted static preference values of current node
 def find_feasibles(current_node_favorite_nodes, remaining_time, current_node,paths,path):
     current_node_feasible_favorite_nodes = []
     for favorite_node in current_node_favorite_nodes:
@@ -86,11 +69,3 @@ def find_feasibles(current_node_favorite_nodes, remaining_time, current_node,pat
                 else:
                     current_node_feasible_favorite_nodes.append(favorite_node)
     return current_node_feasible_favorite_nodes
-
-# this func deletes the chosen next node from all node's favorite nodes, and update fav_nodes list
-def delete_from_favorite(favorite__nodes, next_node):
-    for nodes in favorite__nodes:
-        for node in nodes:
-            if node[0] == next_node[3]:
-                nodes.remove(node)
-
